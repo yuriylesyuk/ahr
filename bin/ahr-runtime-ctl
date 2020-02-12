@@ -1,0 +1,166 @@
+#!/bin/bash
+
+set -e
+
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $BASEDIR/ahr-lib.sh
+
+# check required variables
+check_envvars "HYBRID_INSTALL_DIR HYBRID_VERSION HYBRID_INSTALL_TARBALL HYBRID_CONFIG_FILE"
+
+
+
+##### CLUSTER CLUSTER_ZONE CLUSTER_LOCATIONS PROJECT ORG MACHINE_TYPE"
+
+
+ACTION="$1"
+if [[ ! ";install;home;remove;" =~ ";$ACTION;" ]]; then
+
+    echo " Supported Action:"
+    echo "    install home remove"
+    exit 2
+fi
+
+
+#-----------------------------------------------------------------------
+if [ "install" == "$ACTION" ]; then
+
+
+
+
+
+mkdir -p $HYBRID_INSTALL_DIR
+cd $HYBRID_INSTALL_DIR
+
+
+curl -LO https://storage.googleapis.com/apigee-public/apigee-hybrid-setup/$HYBRID_VERSION/$HYBRID_INSTALL_TARBALL
+
+tar xvzf $HYBRID_INSTALL_TARBALL
+
+# define APIGEECTL_HOME
+export APIGEECTL_HOME=$HYBRID_INSTALL_DIR/$(tar tf $HYBRID_INSTALL_DIR/$HYBRID_INSTALL_TARBALL | grep VERSION.txt | cut -d "/" -f 1)
+
+export PATH=$APIGEECTL_HOME:$PATH
+
+echo "# To define APIGEECTL_HOME in your shell, execute:"
+echo "export APIGEECTL_HOME=$APIGEECTL_HOME"
+echo "export PATH=\$APIGEECTL_HOME:\$PATH"
+
+
+
+
+
+## Apigee Hybrid installation
+
+#
+# Install hybrid
+#
+cd $APIGEECTL_HOME
+apigeectl init -f $HYBRID_CONFIG_FILE --dry-run
+
+
+## TODO: error on --dry-run errors
+
+set +e
+
+apigeectl init -f $HYBRID_CONFIG_FILE
+bash <<T
+set -x
+while true; do 
+    exit_code=\$(apigeectl check-ready -f \$HYBRID_CONFIG_FILE; echo \$?)
+    if [ \$exit_code -ne 0 ]; then
+        echo -n "."
+        sleep 3
+    else
+        break
+    fi
+done
+T
+
+set -e
+
+
+
+
+# TODO: stop on --dry-run
+apigeectl apply -f $HYBRID_CONFIG_FILE --dry-run
+
+
+echo "apigeectl: apply config (overrides) file"
+
+set -e
+
+apigeectl apply -f $HYBRID_CONFIG_FILE
+
+
+# TODO: move to org enable?????
+
+
+# Enable synchronizer access
+
+curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG:setSyncAuthorization" --data-binary @- <<EOF
+{
+    "identities": [ "serviceAccount:$SYNCHRONIZER_SA_ID" ]
+}
+EOF
+
+
+
+
+curl -v -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $(token)" https://apigee.googleapis.com/v1/organizations/$ORG --data-binary @- <<EOF
+{
+  "name" : "$ORG",
+  "properties" : {
+    "property" : [ {
+        "name" : "features.hybrid.enabled",
+        "value" : "true"
+      },
+      {
+        "name": "features.mart.apigee.connect.enabled",
+        "value": "true"
+      }
+    ]
+  }
+}
+EOF
+# TODO: move to org enable?????
+
+
+
+
+set +e
+
+bash <<T
+while true; do
+    exit_code=\$(apigeectl check-ready -f \$HYBRID_CONFIG_FILE; echo \$?)
+    if [ \$exit_code -ne 0 ]; then
+        echo -n "."
+        sleep 3
+    else
+        break
+    fi
+done
+T
+
+
+fi
+
+#-----------------------------------------------------------------------
+if [ "home" == "$ACTION" ]; then
+
+    export APIGEECTL_HOME=$HYBRID_INSTALL_DIR/$(tar tf $HYBRID_INSTALL_DIR/$HYBRID_INSTALL_TARBALL | grep VERSION.txt | cut -d "/" -f 1)
+
+    echo "# To define APIGEECTL_HOME in your shell, execute:"
+    echo "export APIGEECTL_HOME=$APIGEECTL_HOME"
+    echo "export PATH=\$APIGEECTL_HOME:\$PATH"
+
+fi
+
+#-----------------------------------------------------------------------
+if [ "remove" == "$ACTION" ]; then
+
+   echo -e "TODO: Removing hybrid install...."
+
+
+fi
+#-----------------------------------------------------------------------

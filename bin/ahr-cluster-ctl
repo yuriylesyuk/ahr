@@ -1,0 +1,103 @@
+#!/bin/bash
+
+set -e
+
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $BASEDIR/ahr-lib.sh
+
+# check required variables
+check_envvars "CLUSTER CLUSTER_ZONE CLUSTER_LOCATIONS PROJECT ORG MACHINE_TYPE_RUNTIME MACHINE_TYPE_DATA"
+
+function show_help(){
+
+    echo " Supported Action:"
+    echo "    create context template delete"
+    echo ""
+    echo " ahr-cluster-ctl template <templatefile>"
+    echo ""
+}
+
+
+
+ACTION="$1"
+if [[ ! ";create;context;template;delete;" =~ ";$ACTION;" ]]; then
+
+    show_help
+    exit 2
+fi
+
+
+#-----------------------------------------------------------------------
+if [ "create" == "$ACTION" ]; then
+
+
+check_envvars "CLUSTER_CONFIG_FILE"
+
+if [ ! -f "$CLUSTER_CONFIG_FILE" ]; then
+    echo "Cluster file doesn't exist: $CLUSTER_CONFIG_FILE"
+    exit 1
+fi
+
+echo "Cluster definition: $CLUSTER_CONFIG_FILE"
+
+
+response=$(curl --silent -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" https://container.googleapis.com/v1beta1/projects/$PROJECT/zones/$CLUSTER_ZONE/clusters --data-binary @$CLUSTER_CONFIG_FILE)
+if [ $( grep -c error <<< "$response" ) -ne 0  ]; then
+    echo "$response"
+
+    exit 1
+fi
+
+
+# check operation status
+operation=$( jq .name <<< "$response" )
+
+while true; do 
+    status=$(gcloud container operations list --format="value(status)" --filter="name=$operation")
+    if [ "$status" == "RUNNING" ]; then
+        echo -n "."
+        sleep 3
+    else
+        break
+    fi
+done
+
+
+# get cluster context for kubectl
+gcloud container clusters get-credentials $CLUSTER --zone $CLUSTER_ZONE
+
+# set the cluster role binding
+kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user $(gcloud config get-value account)
+
+
+
+#-----------------------------------------------------------------------
+elif [ "template" == "$ACTION" ]; then
+
+    TEMPLATE=$2
+    if [ "$TEMPLATE" = "" ]; then
+       echo "Missing Template file: "
+       echo ""
+       show_help
+       exit 1
+    fi
+
+    envsubst < $TEMPLATE
+
+
+#-----------------------------------------------------------------------
+elif [ "context" == "$ACTION" ]; then
+
+
+kubectl config use-context $CONTEXT
+
+
+#-----------------------------------------------------------------------
+elif [ "delete" == "$ACTION" ]; then
+
+   echo -e "Deleting $CLUSTER cluster: "
+   response=$(gcloud -q container clusters delete $CLUSTER --region $CLUSTER_ZONE)
+
+
+fi
+#-----------------------------------------------------------------------

@@ -1,0 +1,82 @@
+#!/bin/bash
+
+set -e
+
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $BASEDIR/ahr-lib.sh
+
+
+echo "CHECK: certificate is valid today"
+certNotAfter=$(openssl x509 -in $APIGEE_NET_CHAIN -dates -noout | awk '/notAfter/{ printf( "%d%02d%02d",$4,(index( "|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|", "Dec")-2 )/4+1, $2 ) }')
+today=$(date +"%Y%m%d")
+if [[ "$today" > "$certNotAfter" ]]; then
+    echo "ABEND: Certicate Not After Date is less than today: Today: $today; Not After: $certNotAfter."
+    # exit 1
+fi
+
+
+
+#echo "--------------"
+#exit 66
+
+echo "CHECK: Mart host alias resolves into mart ip"
+mart_ip=$(dig +short $MART_HOST_ALIAS)
+if [ "$mart_ip" != "$MART_IP" ]; then
+
+    echo "ABEND: Mart Host Alias does not resolve to the Mart IP. Host Alias: $MART_HOST_ALIAS; Dig: $mart_ip; IP: $MART_IP."
+    exit 1
+fi
+
+echo "CHECK: Runtime host alias resolves into runtime ip"
+runtime_ip=$(dig +short $RUNTIME_HOST_ALIAS)
+if [ "$runtime_ip" != "$RUNTIME_IP" ]; then
+
+    echo "ABEND: Mart Host Alias does not resolve to the Mart IP. Host Alias: $RUNTIME_HOST_ALIAS; Dig: $runtime_ip; IP: $RUNTIME_IP."
+    exit 1
+fi
+
+
+echo "CHECK: MART SA Key file is valid"
+ahr-sa-ctl key mart $MART_SA > /dev/null
+
+echo "CHECK: UDCA SA Key file is valid"
+ahr-sa-ctl key udca $UDCA_SA > /dev/null
+
+echo "CHECK: SYNCHRONIZER SA Key file is valid"
+ahr-sa-ctl key synchronizer $SYNCHRONIZER_SA > /dev/null
+
+echo "CHECK: METRICS SA Key file is valid"
+ahr-sa-ctl key metrics $METRICS_SA
+
+
+# prereqs: enabled apigee.googleapis.com
+
+
+REQUIRED_APIS="logging.googleapis.com apigee.googleapis.com apigeeconnect.googleapis.com compute.googleapis.com cloudresourcemanager.googleapis.com"
+
+
+function check_api_enabled() {
+    api=$1
+
+    status=$(gcloud services list --format="value(config.name)" --filter="config.name:$1 state=enabled"|wc -l)
+
+    echo $status
+}
+
+exit_flag=
+
+for api in $REQUIRED_APIS; do
+    echo -n "CHECK: $api API is enabled: "
+
+    if [ "$(check_api_enabled $api)" -eq 1 ]; then
+       echo "yes."
+    else
+       echo "no".
+       exit_flag=1
+    fi
+done
+
+if [ ! -z "$exit_flag" ]; then 
+    echo -e "\n\nABEND: Enable required APIs"
+    exit 1
+fi

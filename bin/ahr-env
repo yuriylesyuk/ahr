@@ -1,0 +1,42 @@
+#
+# source me!
+#
+
+
+
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $BASEDIR/ahr-lib.sh
+
+# configure PATH for ahr-* utilities
+export AHR_HOME=$BASEDIR/..
+export PATH=$AHR_HOME/bin:$PATH
+
+
+# check required variables
+check_envvars "PROJECT REGION"
+if [ $? -ne 0 ];then
+    return 1
+fi
+
+# project and region
+ gcloud config set project $PROJECT
+if [ ! $? = 0 ]; then 
+    return 2
+fi
+
+gcloud config set compute/region $REGION 
+if [ ! $? = 0 ]; then 
+    return 2
+fi
+
+
+gcloud config list
+
+# kubectl completion
+alias k=kubectl
+source <(k completion bash)
+complete -F __start_kubectl k
+
+
+# set current namespace to apigee
+kubectl config set-context --current --namespace=apigee
