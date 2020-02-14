@@ -16,9 +16,6 @@ fi
 
 
 
-#echo "--------------"
-#exit 66
-
 echo "CHECK: Mart host alias resolves into mart ip"
 mart_ip=$(dig +short $MART_HOST_ALIAS)
 if [ "$mart_ip" != "$MART_IP" ]; then
@@ -46,7 +43,7 @@ echo "CHECK: SYNCHRONIZER SA Key file is valid"
 ahr-sa-ctl key synchronizer $SYNCHRONIZER_SA > /dev/null
 
 echo "CHECK: METRICS SA Key file is valid"
-ahr-sa-ctl key metrics $METRICS_SA
+ahr-sa-ctl key metrics $METRICS_SA > /dev/null
 
 
 # prereqs: enabled apigee.googleapis.com
@@ -64,7 +61,6 @@ function check_api_enabled() {
 }
 
 exit_flag=
-
 for api in $REQUIRED_APIS; do
     echo -n "CHECK: $api API is enabled: "
 

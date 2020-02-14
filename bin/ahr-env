@@ -38,5 +38,6 @@ source <(k completion bash)
 complete -F __start_kubectl k
 
 
-# set current namespace to apigee
+# set current context and default namespace to apigee
+kubectl config use-context $CONTEXT
 kubectl config set-context --current --namespace=apigee

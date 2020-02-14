@@ -94,7 +94,6 @@
     "databaseEncryption": {
       "state": "DECRYPTED"
     },
-    "initialClusterVersion": "1.13.11-gke.14",
     "location": "$CLUSTER_ZONE"
   }
 }

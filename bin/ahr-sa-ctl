@@ -79,7 +79,11 @@ function show_help(){
     echo ""
     echo ""
     echo " ahr-sa-ctl create all|<comp> [--force] [--force-key-file]"
-    echo " ahr-sa-ctl config all|udca|synchronizer|mart"
+    
+#    echo " ahr-sa-ctl create <comp> <comp-id> [--force] [--force-key-file]"
+
+    echo " ahr-sa-ctl config all|udca|synchronizer|mart <sa-id>"
+    echo "    ahr-sa-ctl config udca apigee-udca1"
     echo " ahr-sa-ctl key <comp> <key-json-file>"
     echo " ahr-sa-ctl delete all|synchronizer|udca|mart|logger|metrics|cassandra"
     echo ""
@@ -111,11 +115,14 @@ function get_sa_email() {
 function create_sa() {
     local PROJECT=$1
     local COMP=$2
+set -x
+    local SA_ID=$3
+    if [ "$SA_ID" = "" ]; then
+        SA_ID=apigee-$COMP
+    fi
 
-    local SA_ID=apigee-$COMP
-
-    local SA_NAME=$(get $SA_ID "_NAME")
-    local SA_ROLE=$(get $SA_ID "_ROLES")
+    local SA_NAME=$(get $COMP "_NAME")
+    local SA_ROLE=$(get $COMP "_ROLES")
 
     local SA_EMAIL=$(get_sa_email "${PROJECT}" "${SA_ID}")
     local SA_KEY_JSON=${SA_DIR}/${PROJECT}-${SA_ID}.json
@@ -150,7 +157,7 @@ function get(){
     local comp=$1
     local property=$2
 
-    local value=$(echo -n "${comp}${property}"|awk '{gsub(/-/, "_");print toupper($0)}')
+    local value=$(echo -n "apigee-${comp}${property}"|awk '{gsub(/-/, "_");print toupper($0)}')
 
     echo "${!value}"
 }
@@ -159,13 +166,14 @@ function get(){
 #"
 function config_sa() {
     local PROJECT=$1
-    local SA_ID=$2
+    local COMP=$2
+    local SA_ID=$3
 
-    local SA_EMAIL=$3
-    local SA_KEY_JSON=$4
+    local SA_EMAIL=$4
+    local SA_KEY_JSON=$5
 
 
-    local SA_PERMISSIONS="$(get $SA_ID '_PERMS')"
+    local SA_PERMISSIONS="$(get $COMP '_PERMS')"
 
     echo "Service Account: $SA_EMAIL"
 
@@ -174,7 +182,7 @@ function config_sa() {
     # sa token
     local satoken=$(export GOOGLE_APPLICATION_CREDENTIALS=$SA_KEY_JSON; gcloud auth application-default print-access-token)
 
-
+    echo "GCP Project Permission:"
     local response=$(curl --silent -X POST -H "Authorization: Bearer $satoken" -H "Content-Type:application/json" https://cloudresourcemanager.googleapis.com/v1/projects/$PROJECT:testIamPermissions --data-binary @- <<EOF
 {
     "permissions":  [
@@ -188,18 +196,39 @@ if [ $( grep -c error <<< "$response" ) -ne 0  ]; then
     exit 1
 fi
 
+    if [[ ! ";mart;metrics;" =~ ";$COMP;" ]]; then
+
+       echo "Apigee Hybrid Org/Env Permission:"
+       response=$(curl --silent -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" https://apigee.googleapis.com/v1/organizations/$ORG/environments/$ENV:testIamPermissions --data-binary @- <<EOF
+{
+    "permissions":  [
+        $SA_PERMISSIONS
+    ]
+}
+EOF
+)
+echo $response
+if [ $( grep -c error <<< "$response" ) -ne 0  ]; then
+    exit 1
+fi
+
+    fi
+
 }
 #"
 function config_sa_by_id(){
     local PROJECT=$1
     local COMP=$2
 
-    local SA_ID=apigee-$COMP
+    local SA_ID=$3
+    if [ "$SA_ID" = "" ]; then
+        SA_ID=apigee-$COMP
+    fi
 
     local SA_EMAIL=$(get_sa_email "${PROJECT}" "${SA_ID}")
     local SA_KEY_JSON=${SA_DIR}/${PROJECT}-${SA_ID}.json
 
-    config_sa "$PROJECT" "$SA_ID" "$SA_EMAIL" "$SA_KEY_JSON"
+    config_sa "$PROJECT" "$COMP" "$SA_ID" "$SA_EMAIL" "$SA_KEY_JSON"
 }
 
 
@@ -208,12 +237,16 @@ function config_sa_by_id(){
 function config_sa_by_key(){
     local PROJECT=$1
 
-    local SA_ID=apigee-$2
+    local COMP=$2
+
     local SA_KEY_JSON=$3
 
-    local SA_EMAIL=$(cat $UDCA_SA|jq --raw-output .client_email)
+    local SA_EMAIL=$(cat $SA_KEY_JSON|jq --raw-output .client_email)
 
-    config_sa "$PROJECT" "$SA_ID" "$SA_EMAIL" "$SA_KEY_JSON"
+    local SA_ID=${SA_EMAIL%@*}
+
+
+    config_sa "$PROJECT" "$COMP" "$SA_ID" "$SA_EMAIL" "$SA_KEY_JSON"
 }
 
 
@@ -222,13 +255,15 @@ function config_sa_by_key(){
 #
 function rebind_sa(){
     local PROJECT=$1
-    local SA_ID=$2
+    local COMP=$2
+    local SA_ID=$3
 set -x
     local SA_EMAIL="$(get_sa_email $PROJECT $SA_ID)"
 
-    local SA_ROLE=$(get $SA_ID "_ROLES")
-
+    local SA_ROLE=$(get $COMP "_ROLES")
+set +e
     gcloud projects remove-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role $SA_ROLE
+set -e
     gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role $SA_ROLE
 
 }
@@ -236,21 +271,33 @@ set -x
 
 function delete_sa() {
     local PROJECT=$1
-    local SA_ID=$2
+    local COMP=$2
+    local SA_ID=$3
+
+    if [ "$SA_ID" = "" ]; then
+        SA_ID=apigee-$COMP
+    fi
+
 
     local SA_EMAIL="$(get_sa_email $PROJECT $SA_ID)"
+
+    local SA_KEY_JSON=${SA_DIR}/${PROJECT}-${SA_ID}.json
+
 
     # Check if exists. If exists, delete it
     if [ "$(gcloud iam service-accounts list --format="value(name)" --filter="name:$SA_EMAIL" | wc -l)" -eq 1 ]; then
 # TODO: right now, it assumes one role 
-        local SA_ROLE=$(get $SA_ID "_ROLES")
+        local SA_ROLE=$(get $COMP "_ROLES")
         gcloud projects remove-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role $SA_ROLE
 
         gcloud iam service-accounts delete $SA_EMAIL --quiet
+
+        rm $SA_KEY_JSON
     fi
 
 }
 
+#"
 if [ "$action" = "create" ]; then
     COMP=$2
     if [ "$COMP" = "" ]; then
@@ -259,6 +306,7 @@ if [ "$action" = "create" ]; then
        show_help
        exit 1
     fi
+    COMP_ID=$3
 
     if [ "$COMP" = "all" ]; then
         COMP="$APIGEE_COMP_ALL"
@@ -266,10 +314,18 @@ if [ "$action" = "create" ]; then
 
     IFS=","
     for c in $COMP; do
+        case "$COMP" in
+            *,*)
+                # treat comp id as suffix
+                SA_ID=apigee-${c}$COMP_ID
+                ;;
+            *)
+                # single component
+                SA_ID=apigee-$COMP
+        esac
 
-        create_sa "${PROJECT}" $c
+        create_sa "${PROJECT}" "$c" "$SA_ID"
     done
-
 
 #'----
 elif [ "$action" = "config" ]; then
@@ -281,6 +337,10 @@ elif [ "$action" = "config" ]; then
        exit 1
     fi
 
+    SA_ID=$3
+    if [ "$SA_ID" = "" ]; then
+        SA_ID=apigee-$COMP
+    fi
 
     if [ "$COMP" = "all" ]; then
         COMP="$APIGEE_CONFIG_COMP_ALL"
@@ -288,7 +348,7 @@ elif [ "$action" = "config" ]; then
 
     IFS=","
     for c in $COMP; do
-       config_sa_by_id $PROJECT $c
+       config_sa_by_id $PROJECT "$c" "$SA_ID"
     done
 
 #---
@@ -327,6 +387,7 @@ elif [ "$action" = "rebind" ]; then
        exit 1
     fi
 
+    SA_ID=$3
 
     if [ "$COMP" = "all" ]; then
         COMP="$APIGEE_CONFIG_COMP_ALL"
@@ -334,7 +395,7 @@ elif [ "$action" = "rebind" ]; then
 
     IFS=","
     for c in $COMP; do
-       rebind_sa $PROJECT apigee-$c
+       rebind_sa $PROJECT "$c" "$SA_ID"
     done
 
 #'---
@@ -349,13 +410,15 @@ elif [ "$action" = "delete" ]; then
        exit 1
     fi
 
+    SA_ID=$3
+
     if [ "$COMP" = "all" ]; then
         COMP="$APIGEE_COMP_ALL"
     fi
 
     IFS=","
     for c in $COMP; do
-       delete_sa $PROJECT apigee-$c
+       delete_sa $PROJECT "$c" "$SA_ID"
     done
 
 # ----------------------------------------------------------------------
