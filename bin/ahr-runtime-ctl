@@ -13,11 +13,26 @@ check_envvars "HYBRID_INSTALL_DIR HYBRID_VERSION HYBRID_INSTALL_TARBALL HYBRID_C
 ##### CLUSTER CLUSTER_ZONE CLUSTER_LOCATIONS PROJECT ORG MACHINE_TYPE"
 
 
+
+function show_help(){
+
+    echo "Set of operations to control Hybrid runtime deployment."
+    echo ""
+    echo " ahr-runtime-ctl install|home|template|config|delete"
+    echo ""
+    echo "Examples:"
+    echo " ahr-runtime-ctl template \$AHR_HOME/templates/overrides-large-template.yaml"
+    echo ""
+    echo ""
+}
+
+
+
 ACTION="$1"
-if [[ ! ";install;home;config;delete;" =~ ";$ACTION;" ]]; then
+if [[ ! ";install;home;template;config;delete;" =~ ";$ACTION;" ]]; then
 
     echo " Supported Action:"
-    echo "    install home config delete"
+    echo "    install home template config delete"
     exit 2
 fi
 
@@ -81,17 +96,6 @@ set -e
 
 
 
-# TODO: stop on --dry-run
-apigeectl apply -f $HYBRID_CONFIG_FILE --dry-run
-
-
-echo "apigeectl: apply config (overrides) file"
-
-set -e
-
-apigeectl apply -f $HYBRID_CONFIG_FILE
-
-
 # TODO: move to org enable?????
 
 
@@ -129,9 +133,16 @@ EOF
 # TODO: move to org enable?????
 
 
+# TODO: stop on --dry-run
+apigeectl apply -f $HYBRID_CONFIG_FILE --dry-run
 
 
-set +e
+echo "apigeectl: apply config (overrides) file"
+
+set -e
+
+apigeectl apply -f $HYBRID_CONFIG_FILE
+
 
 bash <<T
 while true; do
@@ -146,10 +157,8 @@ done
 T
 
 
-fi
-
 #-----------------------------------------------------------------------
-if [ "home" == "$ACTION" ]; then
+elif [ "home" == "$ACTION" ]; then
 
     export APIGEECTL_HOME=$HYBRID_INSTALL_DIR/$(tar tf $HYBRID_INSTALL_DIR/$HYBRID_INSTALL_TARBALL | grep VERSION.txt | cut -d "/" -f 1)
 
@@ -157,12 +166,35 @@ if [ "home" == "$ACTION" ]; then
     echo "export APIGEECTL_HOME=$APIGEECTL_HOME"
     echo "export PATH=\$APIGEECTL_HOME:\$PATH"
 
-fi
-
-
 
 #-----------------------------------------------------------------------
-if [ "config" == "$ACTION" ]; then
+elif [ "template" == "$ACTION" ]; then
+
+
+    if [ "$#" -lt 2 ]; then
+        echo "EROOR: Missing template file reference."
+        echo ""
+
+        show_help
+        exit 5
+    fi
+    TEMPLATE="$2"
+
+
+
+    # check required variables
+    check_envvars "PROJECT CLUSTER ORG ENV"
+
+    check_envvars "ENC_KEY_KMS ENC_KEY_KVM ENC_KEY_CACHE"
+
+    check_envvars "SYNCHRONIZER_SA UDCA_SA MART_SA METRICS_SA"
+
+    check_envvars "RUNTIME_HOST_ALIAS RUNTIME_SSL_CERT RUNTIME_SSL_KEY RUNTIME_IP"
+    check_envvars "MART_HOST_ALIAS MART_SSL_CERT MART_SSL_KEY MART_IP"
+
+    envsubst < $TEMPLATE
+#-----------------------------------------------------------------------
+elif [ "config" == "$ACTION" ]; then
 
 curl -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG"
 
@@ -170,15 +202,17 @@ curl -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "htt
 curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG:getSyncAuthorization"
 
 
-fi
-
-
 #-----------------------------------------------------------------------
-if [ "delete" == "$ACTION" ]; then
+elif [ "delete" == "$ACTION" ]; then
 
    echo -e "Deleting hybrid install...."
 
     apigeectl delete -f $HYBRID_CONFIG_FILE --all
 
+
+else
+
+    echo "Action unknown: $ACTION"
+    exit 2
 fi
 #-----------------------------------------------------------------------
