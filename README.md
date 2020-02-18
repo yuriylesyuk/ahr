@@ -138,7 +138,7 @@ ahr-cluster-ctl create
 
 ?. Generate Runtime Configuration  file
 ```
-ahr-template $AHR_HOME/templates/overrides-large-template.yaml > $HYBRID_CONFIG_FILE
+ahr-runtime-ctl template $AHR_HOME/templates/overrides-large-template.yaml > $HYBRID_CONFIG_FILE
 ```
 ?. Install Hybrid Runtime
 ```
@@ -184,7 +184,7 @@ source hybrid-demo6-1.1.sh
 
 ?. Regenerate hybrid config file
 ```
-ahr-template $AHR_HOME/templates/overrides-large-template.yaml > $HYBRID_CONFIG_FILE
+ahr-runtime-ctl template $AHR_HOME/templates/overrides-large-template.yaml > $HYBRID_CONFIG_FILE
 ```
 
 ?. Create synchronizer Service Account
@@ -197,6 +197,7 @@ ahr-sa-ctl create synchronizer $SYNCHRONIZER_ID
 ```
 ahr-sa-ctl config synchronizer $SYNCHRONIZER_ID
 ```
+
 
 ?. Set Sync Authorization. Copy-and-paste from ahr-runtime-ctl
 ```
