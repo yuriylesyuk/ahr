@@ -45,7 +45,7 @@ Apparently, yes.
 
 
 
-# Quick Start
+# Quick Start: Multi-Zone Cluster, Large Runtime
 
 ## __Current__ Assumptions
 - GCP/GKE
@@ -76,7 +76,7 @@ cd ~/apigee-hybrid/hybrid-demo6-1.1
 
 ?. Copy an example file
 ```
-cp $AHR_HOME/examples/hybrid-demo6-1.1.sh hybrid-demo6-1.1.sh
+cp $AHR_HOME/examples/hybrid-demo6-1.1.sh hybrid-demo6-mz-l-1.1.sh
 ```
 ### Configure your runtime settings
 ```
@@ -160,6 +160,56 @@ ahr-sa-ctl delete all
 ```
 
 
+# Quick Start: Single-Zone Cluster, Small Runtime
+
+## Plan and configure your cluster 
+vi hybrid-demo6-sz-s-1.1.sh
+
+```
+export PROJECT=emea-cs-hybrid-demo6
+export REGION=europe-west1
+
+export CLUSTER_CONFIG_FILE=cluster-sz.json
+
+export CLUSTER_VERSION=1.13
+
+export CLUSTER_ZONE=europe-west1-b
+export CLUSTER_LOCATIONS='"europe-west1-b"'
+```
+
+
+## Plan your [static] ip addresses in the region or...
+```
+export RUNTIME_IP=35.241.135.204
+
+export MART_IP=34.76.212.108
+```
+
+
+## Configure and initialize environment variables and settings
+```
+cd ~/apigee-hybrid/hybrid-demo6-1.1
+
+source ~/apigee-hybrid/hybrid-demo6-1.1/hybrid-demo6-sz-s-1.1.sh
+source ~/apigee-hybrid/ahr/bin/ahr-env
+source <(ahr-runtime-ctl home)
+```
+
+## Generate Cluster json and create cluster
+```
+ahr-cluster-ctl template $AHR_HOME/templates/cluster-single-zone-one-nodepool-template.json > $CLUSTER_CONFIG_FILE
+
+ahr-cluster-ctl create
+```
+
+## Generate Runtime Configuration yaml file and Install Runtim
+```
+ahr-runtime-ctl template $AHR_HOME/templates/overrides-small-template.yaml > $HYBRID_CONFIG_FILE
+
+ahr-runtime-ctl install
+```
+
+
 
 
 # Sample Troubleshooting flows
@@ -201,11 +251,15 @@ ahr-sa-ctl config synchronizer $SYNCHRONIZER_ID
 
 ?. Set Sync Authorization. Copy-and-paste from ahr-runtime-ctl
 ```
+(
+SYNCHRONIZER_SA_ID=apigee-synchronizer1@emea-cs-hybrid-demo6.iam.gserviceaccount.com
+
 curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG:setSyncAuthorization" --data-binary @- <<EOF
 {
     "identities": [ "serviceAccount:$SYNCHRONIZER_SA_ID" ]
 }
 EOF
+)
 ```
 
 
