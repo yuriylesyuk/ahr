@@ -17,10 +17,10 @@
         "disabled": true
       }
     },
-    "subnetwork": "projects/$PROJECT/regions/europe-west1/subnetworks/default",
+    "subnetwork": "projects/$PROJECT/regions/$REGION/subnetworks/default",
     "nodePools": [
       {
-        "name": "apigee-runtime",
+        "name": "default-pool",
         "config": {
           "machineType": "$MACHINE_TYPE_RUNTIME",
           "diskSizeGb": 100,
@@ -38,44 +38,17 @@
           "imageType": "COS",
           "diskType": "pd-standard"
         },
-        "initialNodeCount": 1,
+        "initialNodeCount": 3,
         "autoscaling": {
           "enabled": true,
-          "minNodeCount": 1,
-          "maxNodeCount": 2
+          "minNodeCount": 3,
+          "maxNodeCount": 6
         },
         "management": {
           "autoUpgrade": true,
           "autoRepair": true
         },
-        "version": "1.13.11-gke.14"
-      },
-      {
-        "name": "apigee-data",
-        "config": {
-          "machineType": "$MACHINE_TYPE_DATA",
-          "diskSizeGb": 100,
-          "oauthScopes": [
-            "https://www.googleapis.com/auth/devstorage.read_only",
-            "https://www.googleapis.com/auth/logging.write",
-            "https://www.googleapis.com/auth/monitoring",
-            "https://www.googleapis.com/auth/servicecontrol",
-            "https://www.googleapis.com/auth/service.management.readonly",
-            "https://www.googleapis.com/auth/trace.append"
-          ],
-          "metadata": {
-            "disable-legacy-endpoints": "true"
-          },
-          "imageType": "COS",
-          "diskType": "pd-standard"
-        },
-        "initialNodeCount": 1,
-        "autoscaling": {},
-        "management": {
-          "autoUpgrade": true,
-          "autoRepair": true
-        },
-        "version": "1.13.11-gke.14"
+        "version": "$CLUSTER_VERSION"
       }
     ],
     "locations": [
@@ -94,6 +67,7 @@
     "databaseEncryption": {
       "state": "DECRYPTED"
     },
+    "initialClusterVersion": "$CLUSTER_VERSION",
     "location": "$CLUSTER_ZONE"
   }
 }

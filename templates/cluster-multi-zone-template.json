@@ -17,7 +17,7 @@
         "disabled": true
       }
     },
-    "subnetwork": "projects/$PROJECT/regions/europe-west1/subnetworks/default",
+    "subnetwork": "projects/$PROJECT/regions/$REGION/subnetworks/default",
     "nodePools": [
       {
         "name": "apigee-runtime",
@@ -48,7 +48,7 @@
           "autoUpgrade": true,
           "autoRepair": true
         },
-        "version": "1.13.11-gke.14"
+        "version": "$CLUSTER_VERSION"
       },
       {
         "name": "apigee-data",
@@ -75,7 +75,7 @@
           "autoUpgrade": true,
           "autoRepair": true
         },
-        "version": "1.13.11-gke.14"
+        "version": "$CLUSTER_VERSION"
       }
     ],
     "locations": [
@@ -94,6 +94,7 @@
     "databaseEncryption": {
       "state": "DECRYPTED"
     },
+    "initialClusterVersion": "$CLUSTER_VERSION",
     "location": "$CLUSTER_ZONE"
   }
 }
