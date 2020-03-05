@@ -5,12 +5,11 @@ set -e
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . $BASEDIR/ahr-lib.sh
 
-# check required variables
-check_envvars "HYBRID_INSTALL_DIR HYBRID_VERSION HYBRID_INSTALL_TARBALL HYBRID_CONFIG_FILE"
 
 
 
 ##### CLUSTER CLUSTER_ZONE CLUSTER_LOCATIONS PROJECT ORG MACHINE_TYPE"
+check_envvars "ORG"
 
 
 
@@ -40,6 +39,7 @@ fi
 #-----------------------------------------------------------------------
 if [ "install" == "$ACTION" ]; then
 
+check_envvars "HYBRID_INSTALL_DIR HYBRID_VERSION HYBRID_INSTALL_TARBALL HYBRID_CONFIG_FILE"
 
 
 
@@ -196,9 +196,11 @@ elif [ "template" == "$ACTION" ]; then
 #-----------------------------------------------------------------------
 elif [ "config" == "$ACTION" ]; then
 
+echo "Hybrid Organization $ORG  properties:"
 curl -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG"
 
 
+echo "Sync Authorization:"
 curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG:getSyncAuthorization"
 
 
