@@ -1,4 +1,5 @@
 
+function vaml() { vim -R -c 'set syntax=yaml' -;}
 
 function token { echo -n "$(gcloud config config-helper --force-auth-refresh | grep access_token | grep -o -E '[^ ]+$')" ; }
 
