@@ -29,7 +29,7 @@ export REGION=europe-west1
 #
 # Runtime Cluster definition
 #
-
+export CLUSTER_TEMPLATE=$AHR_HOME/templates/cluster-single-zone-one-nodepool-template.json
 export CLUSTER_CONFIG_FILE=cluster-sz.json
 
 

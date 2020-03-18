@@ -11,7 +11,7 @@ check_envvars "CLUSTER CLUSTER_ZONE CLUSTER_LOCATIONS PROJECT ORG MACHINE_TYPE_R
 function show_help(){
 
     echo " Supported Action:"
-    echo "    create context template delete"
+    echo "    create context template delete enable"
     echo ""
     echo " ahr-cluster-ctl template <templatefile>"
     echo ""
@@ -20,7 +20,7 @@ function show_help(){
 
 
 ACTION="$1"
-if [[ ! ";create;context;template;delete;" =~ ";$ACTION;" ]]; then
+if [[ ! ";create;context;template;delete;enable;" =~ ";$ACTION;" ]]; then
 
     show_help
     exit 2
@@ -31,7 +31,7 @@ fi
 if [ "create" == "$ACTION" ]; then
 
 
-check_envvars "CLUSTER_CONFIG_FILE"
+check_envvars "CLUSTER_CONFIG_FILE CONTEXT"
 
 if [ ! -f "$CLUSTER_CONFIG_FILE" ]; then
     echo "Cluster file doesn't exist: $CLUSTER_CONFIG_FILE"
@@ -66,6 +66,10 @@ done
 # get cluster context for kubectl
 gcloud container clusters get-credentials $CLUSTER --zone $CLUSTER_ZONE
 
+# rename default cluster name to the required one
+GKE_CONTEXT=gke_${PROJECT}_${CLUSTER_ZONE}_${CLUSTER}
+kubectl config rename-context $GKE_CONTEXT $CONTEXT
+
 # set the cluster role binding
 kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user $(gcloud config get-value account)
 
@@ -98,6 +102,11 @@ elif [ "delete" == "$ACTION" ]; then
    echo -e "Deleting $CLUSTER cluster: "
    response=$(gcloud -q container clusters delete $CLUSTER --region $CLUSTER_ZONE)
 
+#-----------------------------------------------------------------------
+elif [ "enable" == "$ACTION" ]; then
+   API=$2
+   echo -e "Enabling API $API in  $CLUSTER cluster: "
+   response=$(gcloud services enable $API)
 
 fi
 #-----------------------------------------------------------------------

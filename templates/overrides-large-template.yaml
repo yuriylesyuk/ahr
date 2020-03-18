@@ -68,14 +68,14 @@ cassandra:
   replicaCount: 3
   resources:
     requests:
-      cpu: 7000m
-      memory: 15Gi
+      cpu: $CASSANDRA_REQUESTS_CPU
+      memory: $CASSANDRA_REQUESTS_MEMORY
   maxHeapSize: 8192M
   heapNewSize: 1200M
   storage:
     # Create a storage class with SSD.
     storageClass: pd-ssd
-    capacity: 500Gi
+    capacity: $CASSANDRA_STORAGE_CAPACITY
 
 udca:
   replicaCountMin: 2

@@ -115,7 +115,7 @@ function get_sa_email() {
 function create_sa() {
     local PROJECT=$1
     local COMP=$2
-set -x
+
     local SA_ID=$3
     if [ "$SA_ID" = "" ]; then
         SA_ID=apigee-$COMP
@@ -233,7 +233,7 @@ function config_sa_by_id(){
 
 
 
-#"
+#
 function config_sa_by_key(){
     local PROJECT=$1
 
@@ -257,7 +257,7 @@ function rebind_sa(){
     local PROJECT=$1
     local COMP=$2
     local SA_ID=$3
-set -x
+
     local SA_EMAIL="$(get_sa_email $PROJECT $SA_ID)"
 
     local SA_ROLE=$(get $COMP "_ROLES")
@@ -288,11 +288,14 @@ function delete_sa() {
     if [ "$(gcloud iam service-accounts list --format="value(name)" --filter="name:$SA_EMAIL" | wc -l)" -eq 1 ]; then
 # TODO: right now, it assumes one role 
         local SA_ROLE=$(get $COMP "_ROLES")
+
+        set +e
         gcloud projects remove-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role $SA_ROLE
+        set -e
 
         gcloud iam service-accounts delete $SA_EMAIL --quiet
 
-        rm $SA_KEY_JSON
+        rm -f $SA_KEY_JSON
     fi
 
 }

@@ -9,35 +9,48 @@ BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 
 ##### CLUSTER CLUSTER_ZONE CLUSTER_LOCATIONS PROJECT ORG MACHINE_TYPE"
-check_envvars "ORG"
-
-
 
 function show_help(){
 
     echo "Set of operations to control Hybrid runtime deployment."
     echo ""
-    echo " ahr-runtime-ctl install|home|template|config|delete"
+    echo " ahr-runtime-ctl get|install|home|template|config|delete|setsync"
     echo ""
     echo "Examples:"
     echo " ahr-runtime-ctl template \$AHR_HOME/templates/overrides-large-template.yaml"
+    echo ""
+    echo ""
+    echo "    ahr-runtime-ctl setsync <path-to-key-file.json>"
     echo ""
     echo ""
 }
 
 
 
+function set_sync(){
+    local synchronizer_sa_id=$1
+
+    curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG:setSyncAuthorization" --data-binary @- <<EOF
+{
+    "identities": [ "serviceAccount:$synchronizer_sa_id" ]
+}
+EOF
+
+}
+
+
+
 ACTION="$1"
-if [[ ! ";install;home;template;config;delete;" =~ ";$ACTION;" ]]; then
+if [[ ! ";get;install;home;template;config;delete;setsync;" =~ ";$ACTION;" ]]; then
 
     echo " Supported Action:"
-    echo "    install home template config delete"
+    echo "    get install home template config delete setsync"
     exit 2
 fi
 
 
 #-----------------------------------------------------------------------
-if [ "install" == "$ACTION" ]; then
+if [ "get" == "$ACTION" ]; then
 
 check_envvars "HYBRID_INSTALL_DIR HYBRID_VERSION HYBRID_INSTALL_TARBALL HYBRID_CONFIG_FILE"
 
@@ -60,9 +73,15 @@ export PATH=$APIGEECTL_HOME:$PATH
 echo "# To define APIGEECTL_HOME in your shell, execute:"
 echo "export APIGEECTL_HOME=$APIGEECTL_HOME"
 echo "export PATH=\$APIGEECTL_HOME:\$PATH"
+echo ""
+echo "# or"
+echo "source <(ahr-runtime-ctl home)"
 
 
+#-----------------------------------------------------------------------
+elif [ "install" == "$ACTION" ]; then
 
+check_envvars "APIGEECTL_HOME HYBRID_CONFIG_FILE ORG SYNCHRONIZER_SA_ID MART_HOST_ALIAS"
 
 
 ## Apigee Hybrid installation
@@ -100,13 +119,7 @@ set -e
 
 
 # Enable synchronizer access
-
-curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG:setSyncAuthorization" --data-binary @- <<EOF
-{
-    "identities": [ "serviceAccount:$SYNCHRONIZER_SA_ID" ]
-}
-EOF
-
+set_sync "$SYNCHRONIZER_SA_ID"
 
 
 
@@ -160,19 +173,27 @@ T
 #-----------------------------------------------------------------------
 elif [ "home" == "$ACTION" ]; then
 
+
+check_envvars "HYBRID_INSTALL_DIR HYBRID_INSTALL_TARBALL CONTEXT"
+
     export APIGEECTL_HOME=$HYBRID_INSTALL_DIR/$(tar tf $HYBRID_INSTALL_DIR/$HYBRID_INSTALL_TARBALL | grep VERSION.txt | cut -d "/" -f 1)
 
     echo "# To define APIGEECTL_HOME in your shell, execute:"
+    echo "#   source <(ahr-runtime-ctl home)"
+
     echo "export APIGEECTL_HOME=$APIGEECTL_HOME"
     echo "export PATH=\$APIGEECTL_HOME:\$PATH"
 
+    echo "# set current context and default namespace to apigee"
+    echo "kubectl config use-context \$CONTEXT"
+    echo "kubectl config set-context --current --namespace=apigee"
 
 #-----------------------------------------------------------------------
 elif [ "template" == "$ACTION" ]; then
 
 
     if [ "$#" -lt 2 ]; then
-        echo "EROOR: Missing template file reference."
+        echo "ERROR: Missing template file reference."
         echo ""
 
         show_help
@@ -196,6 +217,8 @@ elif [ "template" == "$ACTION" ]; then
 #-----------------------------------------------------------------------
 elif [ "config" == "$ACTION" ]; then
 
+    check_envvars "ORG"
+
 echo "Hybrid Organization $ORG  properties:"
 curl -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG"
 
@@ -203,6 +226,22 @@ curl -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "htt
 echo "Sync Authorization:"
 curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG:getSyncAuthorization"
 
+
+#-----------------------------------------------------------------------
+elif [ "setsync" == "$ACTION" ]; then
+
+    if [ "$#" -lt 2 ]; then
+        echo "ERROR: Missing synchronizer sa id (ie, email)."
+        echo ""
+
+        show_help
+        exit 5
+    fi
+    synchronizer_sa_id="$2"
+
+    check_envvars "ORG"
+
+    set_sync "$synchronizer_sa_id"
 
 #-----------------------------------------------------------------------
 elif [ "delete" == "$ACTION" ]; then
