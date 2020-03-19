@@ -52,7 +52,7 @@ fi
 #-----------------------------------------------------------------------
 if [ "get" == "$ACTION" ]; then
 
-check_envvars "HYBRID_INSTALL_DIR HYBRID_VERSION HYBRID_INSTALL_TARBALL HYBRID_CONFIG_FILE"
+check_envvars "HYBRID_INSTALL_DIR HYBRID_VERSION HYBRID_INSTALL_TARBALL RUNTIME_CONFIG"
 
 
 
@@ -81,7 +81,7 @@ echo "source <(ahr-runtime-ctl home)"
 #-----------------------------------------------------------------------
 elif [ "install" == "$ACTION" ]; then
 
-check_envvars "APIGEECTL_HOME HYBRID_CONFIG_FILE ORG SYNCHRONIZER_SA_ID MART_HOST_ALIAS"
+check_envvars "APIGEECTL_HOME RUNTIME_CONFIG ORG SYNCHRONIZER_SA_ID MART_HOST_ALIAS"
 
 
 ## Apigee Hybrid installation
@@ -90,17 +90,17 @@ check_envvars "APIGEECTL_HOME HYBRID_CONFIG_FILE ORG SYNCHRONIZER_SA_ID MART_HOS
 # Install hybrid
 #
 cd $APIGEECTL_HOME
-apigeectl init -f $HYBRID_CONFIG_FILE --dry-run
+apigeectl init -f $RUNTIME_CONFIG --dry-run
 
 
 ## TODO: error on --dry-run errors
 
 set +e
 
-apigeectl init -f $HYBRID_CONFIG_FILE
+apigeectl init -f $RUNTIME_CONFIG
 bash <<T
 while true; do 
-    exit_code=\$(apigeectl check-ready -f \$HYBRID_CONFIG_FILE; echo \$?)
+    exit_code=\$(apigeectl check-ready -f \$RUNTIME_CONFIG; echo \$?)
     if [ \$exit_code -ne 0 ]; then
         echo -n "."
         sleep 3
@@ -147,19 +147,19 @@ EOF
 
 
 # TODO: stop on --dry-run
-apigeectl apply -f $HYBRID_CONFIG_FILE --dry-run
+apigeectl apply -f $RUNTIME_CONFIG --dry-run
 
 
 echo "apigeectl: apply config (overrides) file"
 
 set -e
 
-apigeectl apply -f $HYBRID_CONFIG_FILE
+apigeectl apply -f $RUNTIME_CONFIG
 
 
 bash <<T
 while true; do
-    exit_code=\$(apigeectl check-ready -f \$HYBRID_CONFIG_FILE; echo \$?)
+    exit_code=\$(apigeectl check-ready -f \$RUNTIME_CONFIG; echo \$?)
     if [ \$exit_code -ne 0 ]; then
         echo -n "."
         sleep 3
@@ -248,7 +248,7 @@ elif [ "delete" == "$ACTION" ]; then
 
    echo -e "Deleting hybrid install...."
 
-    apigeectl delete -f $HYBRID_CONFIG_FILE --all
+    apigeectl delete -f $RUNTIME_CONFIG --all
 
 
 else

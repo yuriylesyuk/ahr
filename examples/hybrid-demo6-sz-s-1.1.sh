@@ -30,7 +30,7 @@ export REGION=europe-west1
 # Runtime Cluster definition
 #
 export CLUSTER_TEMPLATE=$AHR_HOME/templates/cluster-single-zone-one-nodepool-template.json
-export CLUSTER_CONFIG_FILE=cluster-sz.json
+export CLUSTER_CONFIG=cluster-sz.json
 
 
 export MACHINE_TYPE_DATA=n1-standard-8
@@ -49,7 +49,7 @@ export CONTEXT=gke_${PROJECT}_${CLUSTER_ZONE}_${CLUSTER}
 # 
 # Runtime Hybrid configuration
 #
-export HYBRID_CONFIG_FILE=$HYBRID_INSTALL_DIR/overrides-sz.yaml
+export RUNTIME_CONFIG=$HYBRID_INSTALL_DIR/overrides-sz.yaml
 
 
 export ORG=$PROJECT

@@ -19,7 +19,7 @@ export REGION=us-east1
 #
 # Cluster
 #
-export CLUSTER_CONFIG_FILE=dc1-cluster.json
+export CLUSTER_CONFIG=dc1-cluster.json
 
 export CLUSTER=dc1-cluster
 export CLUSTER_ZONE=us-east1-b
@@ -32,6 +32,6 @@ export CONTEXT=dc1-cluster
 # 
 # Runtime
 #
-export HYBRID_CONFIG_FILE=$HYBRID_INSTALL_DIR/dc1-runtime.yaml
+export RUNTIME_CONFIG=$HYBRID_INSTALL_DIR/dc1-runtime.yaml
 
 #------------------------------------------------------------

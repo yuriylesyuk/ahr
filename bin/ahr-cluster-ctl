@@ -31,17 +31,17 @@ fi
 if [ "create" == "$ACTION" ]; then
 
 
-check_envvars "CLUSTER_CONFIG_FILE CONTEXT"
+check_envvars "CLUSTER_CONFIG CONTEXT"
 
-if [ ! -f "$CLUSTER_CONFIG_FILE" ]; then
-    echo "Cluster file doesn't exist: $CLUSTER_CONFIG_FILE"
+if [ ! -f "$CLUSTER_CONFIG" ]; then
+    echo "Cluster file doesn't exist: $CLUSTER_CONFIG"
     exit 1
 fi
 
-echo "Cluster definition: $CLUSTER_CONFIG_FILE"
+echo "Cluster definition: $CLUSTER_CONFIG"
 
 
-response=$(curl --silent -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" https://container.googleapis.com/v1beta1/projects/$PROJECT/zones/$CLUSTER_ZONE/clusters --data-binary @$CLUSTER_CONFIG_FILE)
+response=$(curl --silent -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" https://container.googleapis.com/v1beta1/projects/$PROJECT/zones/$CLUSTER_ZONE/clusters --data-binary @$CLUSTER_CONFIG)
 if [ $( grep -c error <<< "$response" ) -ne 0  ]; then
     echo "$response"
 
