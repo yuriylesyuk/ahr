@@ -111,7 +111,7 @@ function get_sa_email() {
 }
 
 
-#"  process role
+#  process role
 function create_sa() {
     local PROJECT=$1
     local COMP=$2
@@ -199,7 +199,7 @@ fi
     if [[ ! ";mart;metrics;" =~ ";$COMP;" ]]; then
 
        echo "Apigee Hybrid Org/Env Permission:"
-       response=$(curl --silent -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" https://apigee.googleapis.com/v1/organizations/$ORG/environments/$ENV:testIamPermissions --data-binary @- <<EOF
+       response=$(curl --silent -X POST -H "Authorization: Bearer $satoken" -H "Content-Type:application/json" https://apigee.googleapis.com/v1/organizations/$ORG/environments/$ENV:testIamPermissions --data-binary @- <<EOF
 {
     "permissions":  [
         $SA_PERMISSIONS
