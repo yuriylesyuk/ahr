@@ -36,6 +36,6 @@ export CONTEXT=dc2-cluster
 #------------------------------------------------------------
 
 #
-export RUNTIME_CONFIG=$HYBRID_INSTALL_DIR/dc2-runtime.yaml
+export RUNTIME_CONFIG=$HYBRID_HOME/dc2-runtime.yaml
 
 #------------------------------------------------------------

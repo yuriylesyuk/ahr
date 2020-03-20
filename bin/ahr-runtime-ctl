@@ -52,21 +52,21 @@ fi
 #-----------------------------------------------------------------------
 if [ "get" == "$ACTION" ]; then
 
-check_envvars "HYBRID_INSTALL_DIR HYBRID_VERSION HYBRID_INSTALL_TARBALL RUNTIME_CONFIG"
+check_envvars "HYBRID_HOME HYBRID_VERSION HYBRID_TARBALL RUNTIME_CONFIG"
 
 
 
 
-mkdir -p $HYBRID_INSTALL_DIR
-cd $HYBRID_INSTALL_DIR
+mkdir -p $HYBRID_HOME
+cd $HYBRID_HOME
 
 
-curl -LO https://storage.googleapis.com/apigee-public/apigee-hybrid-setup/$HYBRID_VERSION/$HYBRID_INSTALL_TARBALL
+curl -LO https://storage.googleapis.com/apigee-public/apigee-hybrid-setup/$HYBRID_VERSION/$HYBRID_TARBALL
 
-tar xvzf $HYBRID_INSTALL_TARBALL
+tar xvzf $HYBRID_TARBALL
 
 # define APIGEECTL_HOME
-export APIGEECTL_HOME=$HYBRID_INSTALL_DIR/$(tar tf $HYBRID_INSTALL_DIR/$HYBRID_INSTALL_TARBALL | grep VERSION.txt | cut -d "/" -f 1)
+export APIGEECTL_HOME=$HYBRID_HOME/$(tar tf $HYBRID_HOME/$HYBRID_TARBALL | grep VERSION.txt | cut -d "/" -f 1)
 
 export PATH=$APIGEECTL_HOME:$PATH
 
@@ -174,9 +174,9 @@ T
 elif [ "home" == "$ACTION" ]; then
 
 
-check_envvars "HYBRID_INSTALL_DIR HYBRID_INSTALL_TARBALL CONTEXT"
+check_envvars "HYBRID_HOME HYBRID_TARBALL CONTEXT"
 
-    export APIGEECTL_HOME=$HYBRID_INSTALL_DIR/$(tar tf $HYBRID_INSTALL_DIR/$HYBRID_INSTALL_TARBALL | grep VERSION.txt | cut -d "/" -f 1)
+    export APIGEECTL_HOME=$HYBRID_HOME/$(tar tf $HYBRID_HOME/$HYBRID_TARBALL | grep VERSION.txt | cut -d "/" -f 1)
 
     echo "# To define APIGEECTL_HOME in your shell, execute:"
     echo "#   source <(ahr-runtime-ctl home)"

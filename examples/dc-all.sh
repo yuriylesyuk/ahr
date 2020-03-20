@@ -14,8 +14,8 @@
 #
 
 export HYBRID_VERSION=1.1.0
-export HYBRID_INSTALL_DIR=~/apigee-hybrid/dual-dc-hybrid
-export HYBRID_INSTALL_TARBALL=apigeectl_linux_64.tar.gz
+export HYBRID_HOME=~/apigee-hybrid/dual-dc-hybrid
+export HYBRID_TARBALL=apigeectl_linux_64.tar.gz
 
 
 

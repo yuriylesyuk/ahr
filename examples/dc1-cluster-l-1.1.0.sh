@@ -32,6 +32,6 @@ export CONTEXT=dc1-cluster
 # 
 # Runtime
 #
-export RUNTIME_CONFIG=$HYBRID_INSTALL_DIR/dc1-runtime.yaml
+export RUNTIME_CONFIG=$HYBRID_HOME/dc1-runtime.yaml
 
 #------------------------------------------------------------

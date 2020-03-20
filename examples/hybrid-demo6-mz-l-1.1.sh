@@ -12,8 +12,8 @@
 # Hybrid release configuration
 #
 export HYBRID_VERSION=1.1.0
-export HYBRID_INSTALL_DIR=~/apigee-hybrid/hybrid-demo6-1.1
-export HYBRID_INSTALL_TARBALL=apigeectl_linux_64.tar.gz
+export HYBRID_HOME=~/apigee-hybrid/hybrid-demo6-1.1
+export HYBRID_TARBALL=apigeectl_linux_64.tar.gz
 
 
 
@@ -48,7 +48,7 @@ export CONTEXT=gke_${PROJECT}_${CLUSTER_ZONE}_${CLUSTER}
 # 
 # Runtime Hybrid configuration
 #
-export RUNTIME_CONFIG=$HYBRID_INSTALL_DIR/overrides.yaml
+export RUNTIME_CONFIG=$HYBRID_HOME/overrides.yaml
 
 
 export ORG=$PROJECT
@@ -64,7 +64,7 @@ export ENC_KEY_CACHE=$ENC_KEY_KMS
 export APIGEE_NET_CHAIN=/home/yuriyl/apigee-hybrid/certificates/hybrid-net-cert-20200308.pem
 export APIGEE_NET_KEY=/home/yuriyl/apigee-hybrid/certificates/hybrid-net-key-20200308.pem
 
-export SA_DIR=$HYBRID_INSTALL_DIR/service-accounts
+export SA_DIR=$HYBRID_HOME/service-accounts
 
 export MART_ID=apigee-mart
 export SYNCHRONIZER_ID=apigee-synchronizer
