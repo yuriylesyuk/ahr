@@ -20,7 +20,7 @@ function show_help(){
     echo " ahr-runtime-ctl template \$AHR_HOME/templates/overrides-large-template.yaml"
     echo ""
     echo ""
-    echo "    ahr-runtime-ctl setsync <path-to-key-file.json>"
+    echo "    ahr-runtime-ctl setsync <sa-email or \"\" to reset>"
     echo ""
     echo ""
 }
@@ -30,9 +30,14 @@ function show_help(){
 function set_sync(){
     local synchronizer_sa_id=$1
 
+    local identity=""
+    if [ ! -z "$synchronizer_sa_id" ]; then
+        identity="\"serviceAccount:$synchronizer_sa_id\""
+    fi
+
     curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG:setSyncAuthorization" --data-binary @- <<EOF
 {
-    "identities": [ "serviceAccount:$synchronizer_sa_id" ]
+    "identities": [ $identity ]
 }
 EOF
 
@@ -231,9 +236,8 @@ curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/js
 elif [ "setsync" == "$ACTION" ]; then
 
     if [ "$#" -lt 2 ]; then
-        echo "ERROR: Missing synchronizer sa id (ie, email)."
+        echo "ERROR: Missing synchronizer sa id (ie, email). Or \"\" to reset."
         echo ""
-
         show_help
         exit 5
     fi
