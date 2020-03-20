@@ -34,4 +34,6 @@ export CONTEXT=dc1-cluster
 #
 export RUNTIME_CONFIG=$HYBRID_HOME/dc1-runtime.yaml
 
+export RUNTIME_HOST_ALIAS=$ORG-$ENV-dc1.hybrid-apigee.net
+export RUNTIME_IP=35.246.104.54
 #------------------------------------------------------------

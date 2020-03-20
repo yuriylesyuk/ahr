@@ -38,4 +38,6 @@ export CONTEXT=dc2-cluster
 #
 export RUNTIME_CONFIG=$HYBRID_HOME/dc2-runtime.yaml
 
+export RUNTIME_HOST_ALIAS=$ORG-$ENV-dc2.hybrid-apigee.net
+export RUNTIME_IP=35.246.105.54
 #------------------------------------------------------------

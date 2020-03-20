@@ -75,10 +75,8 @@ export METRICS_SA=$SA_DIR/$ORG-apigee-metrics.json
 export MART_SA_ID=$MART_ID@$PROJECT.iam.gserviceaccount.com
 export SYNCHRONIZER_SA_ID=$SYNCHRONIZER_ID@$PROJECT.iam.gserviceaccount.com
 
-export RUNTIME_HOST_ALIAS=$ORG-$ENV.hybrid-apigee.net
 export RUNTIME_SSL_CERT=$APIGEE_NET_CHAIN
 export RUNTIME_SSL_KEY=$APIGEE_NET_KEY
-export RUNTIME_IP=35.246.104.54
 
 export MART_HOST_ALIAS=$ORG-mart.hybrid-apigee.net
 export MART_SSL_CERT=$APIGEE_NET_CHAIN
