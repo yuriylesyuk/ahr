@@ -17,9 +17,13 @@ function show_help(){
     echo " ahr-runtime-ctl get|home|template|apigeectl|config|delete|setsync|setproperty"
     echo ""
     echo "Examples:"
-    echo " ahr-runtime-ctl template \$AHR_HOME/templates/overrides-large-template.yaml"
+    echo "    ahr-runtime-ctl template \$AHR_HOME/templates/overrides-large-template.yaml"
     echo ""
     echo ""
+    echo "    ahr-runtime-ctl apigeectl <apigeectl-command-line-arguments>"
+    echo "    ahr-runtime-ctl apigeectl wait-for-ready <other-arguments-like-f-and-c>."
+    echo ""
+    echo "    ahr-runtime-ctl config"
     echo "    ahr-runtime-ctl setsync <sa-email or \"\" to reset>"
     echo "    ahr-runtime-ctl setproperty <property> <value>"
     echo ""
@@ -103,11 +107,14 @@ cd $APIGEECTL_HOME
 if [[ " ${@} " =~ " wait-for-ready " ]]; then
 
     bash <<T
+cntr=1
 while true; do 
     exit_code=\$(${@/wait-for-ready/check-ready}; echo \$?)
     if [ \$exit_code -ne 0 ]; then
         echo -n "."
         sleep 5
+        echo $(( cntr % 12 ))
+        cntr=$(( cntr+1 ))
     else
         break
     fi

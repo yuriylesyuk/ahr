@@ -12,9 +12,10 @@
 #
 # Hybrid version
 #
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 export HYBRID_VERSION=1.1.0
-export HYBRID_HOME=~/apigee-hybrid/dual-dc-hybrid
+export HYBRID_HOME=${HYBRID_HOME:-$BASEDIR}
 export HYBRID_TARBALL=apigeectl_linux_64.tar.gz
 
 
@@ -31,7 +32,7 @@ export PROJECT=emea-cs-hybrid-demo2
 #
 export CLUSTER_TEMPLATE=$AHR_HOME/templates/cluster-multi-zone-template.json
 
-export CLUSTER_VERSION=1.13
+export CLUSTER_VERSION=1.14
 
 export MACHINE_TYPE_DATA=n1-standard-4
 export MACHINE_TYPE_RUNTIME=n1-standard-4

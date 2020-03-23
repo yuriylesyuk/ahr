@@ -36,7 +36,7 @@ export CLUSTER_CONFIG=cluster-sz.json
 export MACHINE_TYPE_DATA=n1-standard-8
 export MACHINE_TYPE_RUNTIME=n1-standard-4
 
-export CLUSTER_VERSION=1.13
+export CLUSTER_VERSION=1.14
 
 export CLUSTER=${PROJECT}-cluster
 export CLUSTER_ZONE=europe-west1-b
