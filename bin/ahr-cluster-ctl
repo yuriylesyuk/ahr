@@ -99,7 +99,7 @@ kubectl config use-context $CONTEXT
 #-----------------------------------------------------------------------
 elif [ "delete" == "$ACTION" ]; then
 
-   echo -e "Deleting $CLUSTER cluster: "
+   echo -e "Deleting Cluster: $CLUSTER in Zone: $CLUSTER_ZONE."
    response=$(gcloud -q container clusters delete $CLUSTER --region $CLUSTER_ZONE)
 
 #-----------------------------------------------------------------------

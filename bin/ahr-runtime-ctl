@@ -14,13 +14,14 @@ function show_help(){
 
     echo "Set of operations to control Hybrid runtime deployment."
     echo ""
-    echo " ahr-runtime-ctl get|install|home|template|config|delete|setsync"
+    echo " ahr-runtime-ctl get|home|template|apigeectl|config|delete|setsync|setproperty"
     echo ""
     echo "Examples:"
     echo " ahr-runtime-ctl template \$AHR_HOME/templates/overrides-large-template.yaml"
     echo ""
     echo ""
     echo "    ahr-runtime-ctl setsync <sa-email or \"\" to reset>"
+    echo "    ahr-runtime-ctl setproperty <property> <value>"
     echo ""
     echo ""
 }
@@ -46,10 +47,10 @@ EOF
 
 
 ACTION="$1"
-if [[ ! ";get;install;home;template;config;delete;setsync;" =~ ";$ACTION;" ]]; then
+if [[ ! ";get;home;template;apigeectl;delete;config;setsync;setproperty;" =~ ";$ACTION;" ]]; then
 
     echo " Supported Action:"
-    echo "    get install home template config delete setsync"
+    echo "    get home template apigeectl delete config setsync setproperty"
     exit 2
 fi
 
@@ -84,95 +85,75 @@ echo "source <(ahr-runtime-ctl home)"
 
 
 #-----------------------------------------------------------------------
-elif [ "install" == "$ACTION" ]; then
+elif [ "apigeectl" == "$ACTION" ]; then
 
-check_envvars "APIGEECTL_HOME RUNTIME_CONFIG ORG SYNCHRONIZER_SA_ID MART_HOST_ALIAS"
+check_envvars "APIGEECTL_HOME"
 
 
-## Apigee Hybrid installation
+## apigeectl wrapper
 
 #
-# Install hybrid
+# 
+# wraps the fact that apigeectl needs to be executed in $APIGEECTL_HOME
+# adds wait-for-ready operation
 #
+
 cd $APIGEECTL_HOME
-apigeectl init -f $RUNTIME_CONFIG --dry-run
 
+if [[ " ${@} " =~ " wait-for-ready " ]]; then
 
-## TODO: error on --dry-run errors
-
-set +e
-
-apigeectl init -f $RUNTIME_CONFIG
-bash <<T
+    bash <<T
 while true; do 
-    exit_code=\$(apigeectl check-ready -f \$RUNTIME_CONFIG; echo \$?)
+    exit_code=\$(${@/wait-for-ready/check-ready}; echo \$?)
     if [ \$exit_code -ne 0 ]; then
         echo -n "."
-        sleep 3
+        sleep 5
     else
         break
     fi
 done
 T
 
-set -e
+else 
+#    exit_code=
+$(${@})
+#; echo $?)
+#    exit $exit_code
+fi 
 
 
 
+#-----------------------------------------------------------------------
 
+# TODO: setproperty smart[not override
 # TODO: move to org enable?????
 
+elif [ "setproperty" == "$ACTION" ]; then
 
-# Enable synchronizer access
-set_sync "$SYNCHRONIZER_SA_ID"
+check_envvars "ORG"
+
+    if [ "$#" -lt 3 ]; then
+        echo "ERROR: Missing property or value."
+        echo ""
+        show_help
+        exit 5
+    fi
+
+    PROPERTY=$2
+    VALUE=$3
 
 
+    ORG_PROPERTIES=$( curl --silent -X GET -H "Content-Type: application/json" -H "Authorization: Bearer $(token)" https://apigee.googleapis.com/v1/organizations/$ORG )
+echo "---"
+echo $ORG_PROPERTIES
+echo "---"
+    ORG_PROPERTIES=$( echo $ORG_PROPERTIES | jq ".properties.property |= (map(.name) | index(\"$PROPERTY\") ) as \$ix | if \$ix then .[\$ix][\"value\"]=\"$VALUE\" else . + [{name: \"$PROPERTY\", value:\"$VALUE\"}] end" )
+echo $ORG_PROPERTIES
+echo "---"
 
-curl -v -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $(token)" https://apigee.googleapis.com/v1/organizations/$ORG --data-binary @- <<EOF
-{
-  "name" : "$ORG",
-  "properties" : {
-    "property" : [ {
-        "name" : "features.hybrid.enabled",
-        "value" : "true"
-      },
-      {
-        "name" : "features.mart.server.endpoint",
-        "value" : "$MART_HOST_ALIAS"
-      },
-      {
-        "name": "features.mart.apigee.connect.enabled",
-        "value": "true"
-      }
-    ]
-  }
-}
+    curl --silent -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $(token)" https://apigee.googleapis.com/v1/organizations/$ORG --data-binary @- <<EOF
+$ORG_PROPERTIES
 EOF
-# TODO: move to org enable?????
-
-
-# TODO: stop on --dry-run
-apigeectl apply -f $RUNTIME_CONFIG --dry-run
-
-
-echo "apigeectl: apply config (overrides) file"
-
-set -e
-
-apigeectl apply -f $RUNTIME_CONFIG
-
-
-bash <<T
-while true; do
-    exit_code=\$(apigeectl check-ready -f \$RUNTIME_CONFIG; echo \$?)
-    if [ \$exit_code -ne 0 ]; then
-        echo -n "."
-        sleep 3
-    else
-        break
-    fi
-done
-T
 
 
 #-----------------------------------------------------------------------
