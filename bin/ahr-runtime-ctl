@@ -123,7 +123,7 @@ T
 
 else 
 #    exit_code=
-$(${@})
+${@}
 #; echo $?)
 #    exit $exit_code
 fi 
