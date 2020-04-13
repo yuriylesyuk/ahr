@@ -30,7 +30,7 @@ export REGION=europe-west1
 # Runtime Cluster definition
 #
 export CLUSTER_TEMPLATE=$AHR_HOME/templates/cluster-single-zone-one-nodepool-template.json
-export CLUSTER_CONFIG=cluster-sz.json
+export CLUSTER_CONFIG=$HYBRID_HOME/cluster-sz.json
 
 
 export MACHINE_TYPE_DATA=n1-standard-8
@@ -49,7 +49,7 @@ export CONTEXT=gke_${PROJECT}_${CLUSTER_ZONE}_${CLUSTER}
 # 
 # Runtime Hybrid configuration
 #
-export RUNTIME_CONFIG=$HYBRID_HOME/overrides-sz.yaml
+export RUNTIME_CONFIG=$HYBRID_HOME/runtime-sz.yaml
 
 
 export ORG=$PROJECT
@@ -61,8 +61,8 @@ export ENC_KEY_KVM=$ENC_KEY_KMS
 export ENC_KEY_CACHE=$ENC_KEY_KMS
 
 
-export APIGEE_NET_CHAIN=/home/yuriyl/apigee-hybrid/certificates/hybrid-net-cert-20200308.pem
-export APIGEE_NET_KEY=/home/yuriyl/apigee-hybrid/certificates/hybrid-net-key-20200308.pem
+export APIGEE_NET_CHAIN=/home/yuriyl/apigee-hybrid/certificates/hybrid-net-cert-20200531.pem
+export APIGEE_NET_KEY=/home/yuriyl/apigee-hybrid/certificates/hybrid-net-key-20200531.pem
 
 export SA_DIR=$HYBRID_HOME/service-accounts
 
