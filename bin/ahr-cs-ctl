@@ -15,7 +15,7 @@ function show_help(){
     echo ""
     echo "Examples:"
     echo "    ahr-cs-ctl keyspaces-list"
-    echo "    ahr-cs-ctl keyspaces-extend"
+    echo "    ahr-cs-ctl keyspaces-expand"
     echo ""
     echo "    ahr-cs-ctl nodetool <nodetool-command>"
     echo ""
@@ -72,7 +72,7 @@ elif [ "keyspaces-list" == "$ACTION" ]; then
 
     cqlsh_exec "select * from system_schema.keyspaces;"
 
-elif [ "keyspaces-extend" == "$ACTION" ]; then
+elif [ "keyspaces-expand" == "$ACTION" ]; then
 
 check_envvars "ORG"
 
