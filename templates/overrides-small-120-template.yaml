@@ -1,0 +1,46 @@
+gcp:
+  region: $REGION
+  projectID: $PROJECT
+
+k8sCluster:
+  name: $CLUSTER
+  region: $REGION
+
+org: $ORG
+
+virtualhosts:
+  - name: default
+    hostAliases:
+      - "$RUNTIME_HOST_ALIAS"
+    sslCertPath: $RUNTIME_SSL_CERT
+    sslKeyPath: $RUNTIME_SSL_KEY
+    routingRules:
+      - paths:
+        - /
+        env: $ENV
+
+envs:
+  - name: $ENV
+    serviceAccountPaths:
+      synchronizer: $SYNCHRONIZER_SA
+      udca: $UDCA_SA
+
+mart:
+  hostAlias: "$MART_HOST_ALIAS"
+  serviceAccountPath: $MART_SA
+  sslCertPath: $MART_SSL_CERT
+  sslKeyPath: $MART_SSL_KEY
+
+connect_agent:
+  enabled: true
+  serviceAccountPath: $MART_SA
+
+metrics:
+  serviceAccountPath: $METRICS_SA
+
+ingress:
+  enableAccesslog: true
+  runtime:
+    loadBalancerIP: $RUNTIME_IP
+  mart:
+    loadBalancerIP: $MART_IP

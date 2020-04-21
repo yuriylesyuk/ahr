@@ -54,7 +54,7 @@ ACTION="$1"
 if [[ ! ";get;home;template;apigeectl;delete;config;setsync;setproperty;" =~ ";$ACTION;" ]]; then
 
     echo " Supported Action:"
-    echo "    get home template apigeectl delete config setsync setproperty"
+    echo "    get home template apigeectl delete config setsync setproperty    # for project level"
     exit 2
 fi
 
