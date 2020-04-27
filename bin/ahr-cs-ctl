@@ -11,7 +11,7 @@ function show_help(){
 
     echo "Set of operations to control Hybrid runtime Cassandra ring."
     echo ""
-    echo " ahr-cs-ctl keyspaces-list...)"
+    echo " ahr-cs-ctl keyspaces-list keyspaces-expand nodetool"
     echo ""
     echo "Examples:"
     echo "    ahr-cs-ctl keyspaces-list"
@@ -90,7 +90,7 @@ check_envvars "ORG"
       CQL="ALTER KEYSPACE $ks WITH replication = {'class': 'NetworkTopologyStrategy', $REPLICATION_LIST};"
 
       echo "Executing: $CQL"
-      cqlsh_exec "$CQL"
+###      cqlsh_exec "$CQL"
     done
 
 else

@@ -14,7 +14,7 @@ function show_help(){
 
     echo "Set of operations to control Hybrid runtime deployment."
     echo ""
-    echo " ahr-runtime-ctl get|home|template|apigeectl|config|delete|setsync|setproperty"
+    echo " ahr-runtime-ctl get|home|template|apigeectl|config|delete|setsync|setproperty|org-validate-name|org-create"
     echo ""
     echo "Examples:"
     echo "    ahr-runtime-ctl template \$AHR_HOME/templates/overrides-large-template.yaml"
@@ -27,6 +27,11 @@ function show_help(){
     echo "    ahr-runtime-ctl setsync <sa-email or \"\" to reset>"
     echo "    ahr-runtime-ctl setproperty <property> <value>"
     echo ""
+    echo "    ahr-runtime-ctl org-validate-name <org-name>"
+    echo "    ahr-runtime-ctl org-create <org-name> --ax-region <ax-region>"
+    echo "         ax-region: asia-east1 asia-northeast1 asia-southeast1"
+    echo "                    australia-southeast1 europe-west1 europe-west2"
+    echo "                    us-central1 us-east1 us-east4 us-west1"
     echo ""
 }
 
@@ -49,15 +54,23 @@ EOF
 }
 
 
+function validate_org_name(){
+    local org_name=$1
+
+    if [[ ! "${org_name}" =~ ^([a-z]{1})([a-z0-9-]*)$ ]]; then
+       echo "The organization ID: '$org_name' can contain only lower- case letters, digits, and hyphens."
+
+    elif [ ${#org_name} -gt 32   ]; then
+       echo "The organization ID: '$org_name' has a maximum length of 32 characters."
+
+    else
+
+       echo "The organization ID: '$org_name' is valid"
+    fi
+}
+
 
 ACTION="$1"
-if [[ ! ";get;home;template;apigeectl;delete;config;setsync;setproperty;" =~ ";$ACTION;" ]]; then
-
-    echo " Supported Action:"
-    echo "    get home template apigeectl delete config setsync setproperty    # for project level"
-    exit 2
-fi
-
 
 #-----------------------------------------------------------------------
 if [ "get" == "$ACTION" ]; then
@@ -223,8 +236,8 @@ curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/js
 #-----------------------------------------------------------------------
 elif [ "setsync" == "$ACTION" ]; then
 
-    if [ "$#" -lt 2 ]; then
-        echo "ERROR: Missing synchronizer sa id (ie, email). Or \"\" to reset."
+    if [ "$#" -lt 3 ]; then
+        echo "ERROR: Missing <org-name> and/or <ax-region>."
         echo ""
         show_help
         exit 5
@@ -243,9 +256,37 @@ elif [ "delete" == "$ACTION" ]; then
     apigeectl delete -f $RUNTIME_CONFIG --all
 
 
-else
+#-----------------------------------------------------------------------
+elif [ "org-validate-name" == "$ACTION" ]; then
 
+     validate_org_name $2
+
+#-----------------------------------------------------------------------
+elif [ "org-create" == "$ACTION" ]; then
+    if [ "$#" -lt 2 ]; then
+        echo "ERROR: Missing synchronizer sa id (ie, email). Or \"\" to reset."
+        echo ""
+        show_help
+        exit 5
+    fi
+
+check_envvars "PROJECT"
+
+curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json" https://apigee.googleapis.com/v1/organizations?parent=projects/$PROJECT --data-binary @- <<EOF
+{
+    "name":"proposed_org_ID",
+    "displayName":"display_name",
+    "description":"organization_description",
+    "analyticsRegion":"analytics_region"
+}
+EOF
+
+
+
+else
     echo "Action unknown: $ACTION"
+    echo ""
+    show_help
     exit 2
 fi
 #-----------------------------------------------------------------------

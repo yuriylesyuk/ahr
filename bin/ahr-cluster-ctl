@@ -20,12 +20,6 @@ function show_help(){
 
 
 ACTION="$1"
-if [[ ! ";create;context;template;delete;enable;" =~ ";$ACTION;" ]]; then
-
-    show_help
-    exit 2
-fi
-
 
 #-----------------------------------------------------------------------
 if [ "create" == "$ACTION" ]; then
@@ -107,6 +101,14 @@ elif [ "enable" == "$ACTION" ]; then
    API=$2
    echo -e "Enabling API $API in  $CLUSTER cluster: "
    response=$(gcloud services enable $API)
+
+
+else
+    echo "Action unknown: $ACTION"
+    echo ""
+    show_help
+    exit 2
+fi
 
 fi
 #-----------------------------------------------------------------------
