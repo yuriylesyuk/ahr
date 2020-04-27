@@ -236,8 +236,8 @@ curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/js
 #-----------------------------------------------------------------------
 elif [ "setsync" == "$ACTION" ]; then
 
-    if [ "$#" -lt 3 ]; then
-        echo "ERROR: Missing <org-name> and/or <ax-region>."
+    if [ "$#" -lt 2 ]; then
+        echo "ERROR: Missing synchronizer SA ID in the form of the email."
         echo ""
         show_help
         exit 5
