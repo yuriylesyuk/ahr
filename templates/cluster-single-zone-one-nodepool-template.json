@@ -6,7 +6,7 @@
     },
     "loggingService": "logging.googleapis.com",
     "monitoringService": "monitoring.googleapis.com",
-    "network": "projects/$PROJECT/global/networks/default",
+    "network": "projects/$PROJECT/global/networks/$NETWORK",
     "addonsConfig": {
       "httpLoadBalancing": {},
       "horizontalPodAutoscaling": {},
@@ -17,7 +17,7 @@
         "disabled": true
       }
     },
-    "subnetwork": "projects/$PROJECT/regions/$REGION/subnetworks/default",
+    "subnetwork": "projects/$PROJECT/regions/$REGION/subnetworks/$NETWORK",
     "nodePools": [
       {
         "name": "default-pool",
