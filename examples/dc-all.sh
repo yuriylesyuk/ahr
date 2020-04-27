@@ -14,7 +14,7 @@
 #
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-export HYBRID_VERSION=1.1.0
+export HYBRID_VERSION=1.2.0
 export HYBRID_HOME=${HYBRID_HOME:-$BASEDIR}
 export HYBRID_TARBALL=apigeectl_linux_64.tar.gz
 

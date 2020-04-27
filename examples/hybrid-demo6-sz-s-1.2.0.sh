@@ -11,7 +11,7 @@
 #
 # Hybrid release configuration
 #
-export HYBRID_VERSION=1.1.0
+export HYBRID_VERSION=1.2.0
 export HYBRID_TARBALL=apigeectl_linux_64.tar.gz
 
 
@@ -31,8 +31,8 @@ export REGION=europe-west1
 #
 # Runtime Cluster definition
 #
-export CLUSTER_TEMPLATE=$AHR_HOME/templates/cluster-multi-zone-template.json
-export CLUSTER_CONFIG=$HYBRID_HOME/cluster-mz.json
+export CLUSTER_TEMPLATE=$AHR_HOME/templates/cluster-single-zone-one-nodepool-template.json
+export CLUSTER_CONFIG=$HYBRID_HOME/cluster-sz.json
 
 
 export MACHINE_TYPE_DATA=n1-standard-8
@@ -42,21 +42,21 @@ export CLUSTER_VERSION=1.14
 
 export CLUSTER=${PROJECT}-cluster
 export CLUSTER_ZONE=europe-west1-b
-export CLUSTER_LOCATIONS='"europe-west1-b","europe-west1-c","europe-west1-d"'
+export CLUSTER_LOCATIONS='"europe-west1-b"'
 export CONTEXT=gke_${PROJECT}_${CLUSTER_ZONE}_${CLUSTER}
+
 
 #------------------------------------------------------------
 
 # 
 # Runtime Hybrid configuration
 #
-export RUNTIME_CONFIG=$HYBRID_HOME/runtime-mz.yaml
+export RUNTIME_CONFIG=$HYBRID_HOME/runtime-sz.yaml
 
 
 export ORG=$PROJECT
 export ENV=test
 
-export CASSANDRA_STORAGE_CAPACITY=20Gi
 
 export ENC_KEY_KMS=$(LC_ALL=C tr -dc "[:print:]" < /dev/urandom | head -c 32 | openssl base64)
 export ENC_KEY_KVM=$ENC_KEY_KMS
