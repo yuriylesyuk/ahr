@@ -12,7 +12,6 @@
 # Hybrid release configuration
 #
 export HYBRID_VERSION=1.1.0
-export HYBRID_HOME=~/apigee-hybrid/hybrid-demo6-1.1
 export HYBRID_TARBALL=apigeectl_linux_64.tar.gz
 
 
