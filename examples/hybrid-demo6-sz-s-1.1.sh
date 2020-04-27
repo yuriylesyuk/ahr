@@ -24,6 +24,7 @@ export HYBRID_TARBALL=apigeectl_linux_64.tar.gz
 
 export PROJECT=emea-cs-hybrid-demo6
 export NETWORK=default
+export SUBNETWORK=default
 
 export REGION=europe-west1
 #

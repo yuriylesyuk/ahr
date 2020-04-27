@@ -17,7 +17,7 @@
         "disabled": true
       }
     },
-    "subnetwork": "projects/$PROJECT/regions/$REGION/subnetworks/$NETWORK",
+    "subnetwork": "projects/$PROJECT/regions/$REGION/subnetworks/$SUBNETWORK",
     "nodePools": [
       {
         "name": "apigee-runtime",
