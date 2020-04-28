@@ -31,7 +31,7 @@ _apigeectl() {
 
     if [[ "$cur" =~ ^-.* ]]; then
         COMPREPLY=( $( compgen -W '
-          --components --dry-run --file-verride-config --help --print-yaml --settings
+          -c --components --dry-run -f --file-override-config --help --print-yaml --settings
            ' -- "$cur" ) )
         return 0
     fi
