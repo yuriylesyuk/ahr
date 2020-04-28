@@ -29,6 +29,12 @@ _apigeectl() {
            ;;
     esac
 
+    if [[ "$cur" =~ ^-.* ]]; then
+        COMPREPLY=( $( compgen -W '
+          --components --dry-run --file-verride-config --help --print-yaml --settings
+           ' -- "$cur" ) )
+        return 0
+    fi
 
     # no action yet, show what actions we have
     if [[ "$action" = "" ]]; then
@@ -36,12 +42,6 @@ _apigeectl() {
        return 0
     fi
 
-    if [[ "$cur" =~ ^-.* ]]; then
-        COMPREPLY=( $( compgen -W '
-          --components --dry-run --file-verride-config --help --print-yaml --settings
-           ' -- "$cur" ) )
-        return 0
-    fi
 
 } &&
 complete -F _apigeectl apigeectl
