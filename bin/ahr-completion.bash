@@ -5,7 +5,7 @@ _ahr() {
     local command=$1
     case $command in
     ahr-runtime-ctl)
-        ACTIONS=(get home template apigeectl config delete setsync setproperty org-validate-name org-create)
+        ACTIONS=(get home template apigeectl delete setsync setproperty org-validate-name org-create org-config)
         ;;
     ahr-cluster-ctl)
         ACTIONS=(create context template delete enable)

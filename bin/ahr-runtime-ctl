@@ -14,7 +14,7 @@ function show_help(){
 
     echo "Set of operations to control Hybrid runtime deployment."
     echo ""
-    echo " ahr-runtime-ctl get|home|template|apigeectl|config|delete|setsync|setproperty|org-validate-name|org-create"
+    echo " ahr-runtime-ctl get|home|template|apigeectl|delete|setsync|setproperty|org-validate-name|org-create|org-config"
     echo ""
     echo "Examples:"
     echo "    ahr-runtime-ctl template \$AHR_HOME/templates/overrides-large-template.yaml"
@@ -23,10 +23,10 @@ function show_help(){
     echo "    ahr-runtime-ctl apigeectl <apigeectl-command-line-arguments>"
     echo "    ahr-runtime-ctl apigeectl wait-for-ready <other-arguments-like-f-and-c>."
     echo ""
-    echo "    ahr-runtime-ctl config"
     echo "    ahr-runtime-ctl setsync <sa-email or \"\" to reset>"
     echo "    ahr-runtime-ctl setproperty <property> <value>"
     echo ""
+    echo "    ahr-runtime-ctl org-config"
     echo "    ahr-runtime-ctl org-validate-name <org-name>"
     echo "    ahr-runtime-ctl org-create <org-name> --ax-region <ax-region>"
     echo "         ax-region: asia-east1 asia-northeast1 asia-southeast1"
@@ -220,18 +220,6 @@ elif [ "template" == "$ACTION" ]; then
     check_envvars "MART_HOST_ALIAS MART_SSL_CERT MART_SSL_KEY MART_IP"
 
     envsubst < $TEMPLATE
-#-----------------------------------------------------------------------
-elif [ "config" == "$ACTION" ]; then
-
-    check_envvars "ORG"
-
-echo "Hybrid Organization $ORG  properties:"
-curl -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG"
-
-
-echo "Sync Authorization:"
-curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG:getSyncAuthorization"
-
 
 #-----------------------------------------------------------------------
 elif [ "setsync" == "$ACTION" ]; then
@@ -255,6 +243,17 @@ elif [ "delete" == "$ACTION" ]; then
 
     apigeectl delete -f $RUNTIME_CONFIG --all
 
+#-----------------------------------------------------------------------
+elif [ "org-config" == "$ACTION" ]; then
+
+    check_envvars "ORG"
+
+echo "Hybrid Organization $ORG  properties:"
+curl -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG"
+
+
+echo "Sync Authorization:"
+curl -X POST -H "Authorization: Bearer $(token)" -H "Content-Type:application/json" "https://apigee.googleapis.com/v1/organizations/$ORG:getSyncAuthorization"
 
 #-----------------------------------------------------------------------
 elif [ "org-validate-name" == "$ACTION" ]; then
@@ -270,14 +269,20 @@ elif [ "org-create" == "$ACTION" ]; then
         exit 5
     fi
 
+    ## TODO: ahr-runtime-ctl org-create hybrid-org --ax-region europe-west1
+    ## TODO: process org parameter as the one after org-create
+    ## TODO: move AX_REGION from positional to --option
+    ORG=$2
+    AX_REGION=$4
+
 check_envvars "PROJECT"
 
 curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json" https://apigee.googleapis.com/v1/organizations?parent=projects/$PROJECT --data-binary @- <<EOF
 {
-    "name":"proposed_org_ID",
-    "displayName":"display_name",
+    "name":"$ORG",
+    "displayName":"$ORG",
     "description":"organization_description",
-    "analyticsRegion":"analytics_region"
+    "analyticsRegion":"$AX_REGION"
 }
 EOF
 
