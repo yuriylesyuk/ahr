@@ -10,7 +10,7 @@ BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # configure PATH for ahr-* utilities
 export AHR_HOME=${AHR_HOME:-$BASEDIR/..}
 export PATH=$AHR_HOME/bin:$PATH
-
+. $BASEDIR/ahr-completion.bash
 
 # check required variables
 check_envvars "PROJECT"
