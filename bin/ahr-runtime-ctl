@@ -197,27 +197,18 @@ check_envvars "HYBRID_HOME HYBRID_TARBALL CONTEXT"
 #-----------------------------------------------------------------------
 elif [ "template" == "$ACTION" ]; then
 
-
-    if [ "$#" -lt 2 ]; then
+    TEMPLATE=$2
+    if [ "$TEMPLATE" = "" ]; then
         echo "ERROR: Missing template file reference."
         echo ""
 
         show_help
         exit 5
     fi
-    TEMPLATE="$2"
 
+    TEMPLATE_VARS=$(envsubst --variables  "$(cat $TEMPLATE)"|sort -u)
 
-
-    # check required variables
-    check_envvars "PROJECT CLUSTER ORG ENV"
-
-    check_envvars "ENC_KEY_KMS ENC_KEY_KVM ENC_KEY_CACHE"
-
-    check_envvars "SYNCHRONIZER_SA UDCA_SA MART_SA METRICS_SA"
-
-    check_envvars "RUNTIME_HOST_ALIAS RUNTIME_SSL_CERT RUNTIME_SSL_KEY RUNTIME_IP"
-    check_envvars "MART_HOST_ALIAS MART_SSL_CERT MART_SSL_KEY MART_IP"
+    check_envvars "$TEMPLATE_VARS"
 
     envsubst < $TEMPLATE
 

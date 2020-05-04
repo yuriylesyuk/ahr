@@ -16,6 +16,9 @@ _ahr() {
     ahr-cs-ctl)
         ACTIONS=(keyspaces-list keyspaces-expand nodetool)
         ;;
+    ahr-verify-ctl)
+        ACTIONS=(cert host-ip sa-key api all)
+        ;;
     esac
 
     local action i
@@ -56,7 +59,16 @@ _ahr() {
                         COMPREPLY=( $( compgen -W '--ax-region' -- "$cur" ) )
                         return 0
                     ;;
+                esac
+                ;;
+            ahr-verify-ctl)
+                case $action in
+                    all)
+                        COMPREPLY=( $( compgen -W '--stop-on-error' -- "$cur" ) )
+                        return 0
+                    ;;
                esac
+               ;;
         esac
     fi
 
@@ -64,5 +76,6 @@ _ahr() {
 complete -F _ahr ahr-runtime-ctl &&
 complete -F _ahr ahr-cluster-ctl &&
 complete -F _ahr ahr-sa-ctl &&
+complete -F _ahr ahr-verify-ctl &&
 complete -F _ahr ahr-cs-ctl
 

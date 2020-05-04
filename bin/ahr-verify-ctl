@@ -1,12 +1,37 @@
 #!/bin/bash
 
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $BASEDIR/ahr-lib.sh
 
+function show_help(){
+
+    echo "Set of operations to control Hybrid install and runtime configuration."
+    echo ""
+    echo " ahr-verify-ctl  cert host-ip sa-key api  all"
+    echo ""
+    echo "Examples:"
+    echo ""
+}
+
+
+# options
 STOPONERROR=1
 
-
-if [ "$1" = "--stoponerror=false" ]; then
+pps=""
+while(($#)); do
+case "$1" in
+  -s|--stoponerror)
     STOPONERROR=0
-fi
+    shift;;
+
+  *)
+    pps="$pps $1"
+    shift;;
+esac
+done
+eval set -- "$pps"
+
+ACTION=$1
 
 
 function report_abend(){
@@ -19,8 +44,8 @@ function report_abend(){
 }
 
 
-BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. $BASEDIR/ahr-lib.sh
+#-----------------------------------------------------------------------
+if [ "cert" == "$ACTION" ] || [ "all" == "$ACTION" ]; then
 
 
 echo "CHECK: certificate is valid today"
@@ -37,6 +62,10 @@ fi
 
 
 
+#-----------------------------------------------------------------------
+elif [ "host-ip" == "$ACTION" ] || [ "all" == "$ACTION" ]; then
+
+
 echo "CHECK: Mart host alias resolves into mart ip"
 mart_ip=$(dig +short $MART_HOST_ALIAS)
 if [ "$mart_ip" != "$MART_IP" ]; then
@@ -50,6 +79,10 @@ if [ "$runtime_ip" != "$RUNTIME_IP" ]; then
 
     report_abend echo "ABEND: Runtime Host Alias does not resolve to the Runtime IP. Host Alias: $RUNTIME_HOST_ALIAS; Dig: $runtime_ip; IP: $RUNTIME_IP."
 fi
+
+
+#-----------------------------------------------------------------------
+elif [ "sa-key" == "$ACTION" ]; then
 
 
 # sa keys
@@ -81,6 +114,11 @@ check_sa_key metrics $METRICS_SA
 
 
 
+
+#-----------------------------------------------------------------------
+elif [ "api" == "$ACTION" ]; then
+
+
 # prereqs: enabled apigee.googleapis.com
 
 
@@ -110,3 +148,13 @@ done
 if [ ! -z "$exit_flag" ]; then 
     report_abend -e "\n\nABEND: Enable required APIs"
 fi
+
+
+
+# ----------------------------------------------------------------------
+else
+    echo "Unknown action: $action"
+    echo ""
+    show_help
+fi
+#-----------------------------------------------------------------------

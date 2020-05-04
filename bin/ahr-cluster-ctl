@@ -5,8 +5,6 @@ set -e
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . $BASEDIR/ahr-lib.sh
 
-# check required variables
-check_envvars "CLUSTER CLUSTER_ZONE CLUSTER_LOCATIONS PROJECT ORG MACHINE_TYPE_RUNTIME MACHINE_TYPE_DATA"
 
 function show_help(){
 
@@ -25,7 +23,7 @@ ACTION="$1"
 if [ "create" == "$ACTION" ]; then
 
 
-check_envvars "CLUSTER_CONFIG CONTEXT"
+check_envvars "CLUSTER CLUSTER_CONFIG CLUSTER_ZONE CONTEXT PROJECT"
 
 if [ ! -f "$CLUSTER_CONFIG" ]; then
     echo "Cluster file doesn't exist: $CLUSTER_CONFIG"
@@ -80,12 +78,18 @@ elif [ "template" == "$ACTION" ]; then
        exit 1
     fi
 
+
+    TEMPLATE_VARS=$(envsubst --variables  "$(cat $TEMPLATE)"|sort -u)
+
+    check_envvars "$TEMPLATE_VARS"
+
     envsubst < $TEMPLATE
 
 
 #-----------------------------------------------------------------------
 elif [ "context" == "$ACTION" ]; then
 
+check_envvars "CONTEXT"
 
 kubectl config use-context $CONTEXT
 
@@ -93,14 +97,20 @@ kubectl config use-context $CONTEXT
 #-----------------------------------------------------------------------
 elif [ "delete" == "$ACTION" ]; then
 
+check_envvars "CLUSTER CLUSTER_ZONE"
+
    echo -e "Deleting Cluster: $CLUSTER in Zone: $CLUSTER_ZONE."
    response=$(gcloud -q container clusters delete $CLUSTER --region $CLUSTER_ZONE)
 
 #-----------------------------------------------------------------------
 elif [ "enable" == "$ACTION" ]; then
+
+check_envvars "PROJECT"
+
+
    API=$2
    echo -e "Enabling API $API in  $CLUSTER cluster: "
-   response=$(gcloud services enable $API)
+   response=$(gcloud services enable $API --project $PROJECT)
 
 
 else
