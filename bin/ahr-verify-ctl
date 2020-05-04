@@ -10,6 +10,7 @@ function show_help(){
     echo " ahr-verify-ctl  cert host-ip sa-key api  all"
     echo ""
     echo "Examples:"
+    echo "    ahr-verify-ctl cert <cert-pem-file>"
     echo ""
 }
 
@@ -47,6 +48,13 @@ function report_abend(){
 #-----------------------------------------------------------------------
 if [ "cert" == "$ACTION" ] || [ "all" == "$ACTION" ]; then
 
+    CERT_CHAIN=$2
+    if [ "$CERT_CHAIN" = "" ]; then
+       echo "Missing Certificate Chain file: "
+       echo ""
+       show_help
+       exit 1
+    fi
 
 echo "CHECK: certificate is valid today"
 
