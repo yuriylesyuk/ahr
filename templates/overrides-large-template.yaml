@@ -91,7 +91,7 @@ mart:
   sslCertPath: $MART_SSL_CERT
   sslKeyPath: $MART_SSL_KEY
 
-connect_agent:
+connectAgent:
   replicaCountMin: 2
   enabled: true
   serviceAccountPath: $MART_SA
