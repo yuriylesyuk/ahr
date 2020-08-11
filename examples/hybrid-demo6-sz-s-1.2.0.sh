@@ -26,6 +26,7 @@ export NETWORK=default
 export SUBNETWORK=default
 
 export REGION=europe-west1
+export AX_REGION=$REGION
 #
 
 #

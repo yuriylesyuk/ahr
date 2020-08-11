@@ -17,7 +17,7 @@ _ahr() {
         ACTIONS=(keyspaces-list keyspaces-expand nodetool)
         ;;
     ahr-verify-ctl)
-        ACTIONS=(cert host-ip sa-key api all)
+        ACTIONS=(cert host-ip sa-key api-check api-enable all)
         ;;
     esac
 

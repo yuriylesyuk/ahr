@@ -43,6 +43,10 @@ eval set -- "$pps"
 APIGEE_COMP_ALL="synchronizer,mart,udca,logger,metrics,cassandra"
 APIGEE_CONFIG_COMP_ALL="synchronizer,mart,udca"
 
+APIGEE_ASM_ROLES='roles/gkehub.connect'
+APIGEE_ASM_PERMS='"gkehub.endpoints.connect"'
+APIGEE_ASM_NAME='ASM Service Account'
+
 APIGEE_SYNCHRONIZER_ROLES='roles/apigee.synchronizerManager'
 APIGEE_SYNCHRONIZER_PERMS='"apigee.environments.get","apigee.environments.manageRuntime"'
 APIGEE_SYNCHRONIZER_NAME='Synchronizer Manager Service Account'
@@ -65,7 +69,6 @@ APIGEE_METRICS_NAME='Metrics Writer Service Account'
 
 APIGEE_CASSANDRA_ROLES='roles/storage.objectAdmin'
 APIGEE_CASSANDRA_PERMS='"resourcemanager.projects.get","resourcemanager.projects.list","storage.objects.*"'
-
 APIGEE_CASSANDRA_NAME='Cassandra Backups Service Account'
 
 

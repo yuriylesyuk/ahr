@@ -11,7 +11,7 @@
 #
 # Hybrid release configuration
 #
-export HYBRID_VERSION=1.2.0
+export HYBRID_VERSION=1.3.0
 export HYBRID_TARBALL=apigeectl_linux_64.tar.gz
 
 
@@ -35,6 +35,8 @@ export AX_REGION=$REGION
 export CLUSTER_TEMPLATE=$AHR_HOME/templates/cluster-multi-zone-template.json
 export CLUSTER_CONFIG=$HYBRID_HOME/cluster-mz.json
 
+export ASM_TEMPLATE=$AHR_HOME/templates/asm-overrides.yaml
+export ASM_CONFIG=$HYBRID_HOME/asm.yaml
 
 export MACHINE_TYPE_DATA=n1-standard-8
 export MACHINE_TYPE_RUNTIME=n1-standard-4
@@ -59,9 +61,9 @@ export ENV=test
 
 export CASSANDRA_STORAGE_CAPACITY=20Gi
 
-export ENC_KEY_KMS=$(LC_ALL=C tr -dc "[:print:]" < /dev/urandom | head -c 32 | openssl base64)
-export ENC_KEY_KVM=$ENC_KEY_KMS
-export ENC_KEY_CACHE=$ENC_KEY_KMS
+#export ENC_KEY_KMS=$(LC_ALL=C tr -dc "[:print:]" < /dev/urandom | head -c 32 | openssl base64)
+#export ENC_KEY_KVM=$ENC_KEY_KMS
+#export ENC_KEY_CACHE=$ENC_KEY_KMS
 
 
 export APIGEE_NET_CHAIN=/home/yuriyl/apigee-hybrid/certificates/hybrid-net-cert-20200531.pem

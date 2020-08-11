@@ -7,12 +7,30 @@ function show_help(){
 
     echo "Set of operations to control Hybrid install and runtime configuration."
     echo ""
-    echo " ahr-verify-ctl  cert host-ip sa-key api  all"
+    echo " ahr-verify-ctl  cert host-ip sa-key api-check api-enable  all"
     echo ""
     echo "Examples:"
     echo "    ahr-verify-ctl cert <cert-pem-file>"
     echo ""
 }
+
+
+REQUIRED_APIS=" \
+        logging.googleapis.com \
+        apigee.googleapis.com \
+        apigeeconnect.googleapis.com \
+        compute.googleapis.com \
+        cloudresourcemanager.googleapis.com \
+        \
+        meshca.googleapis.com \
+        meshtelemetry.googleapis.com \
+        meshconfig.googleapis.com
+        \
+        anthos.googleapis.com \
+        gkeconnect.googleapis.com \
+        gkehub.googleapis.com \
+"
+
 
 
 # options
@@ -124,13 +142,12 @@ check_sa_key metrics $METRICS_SA
 
 
 #-----------------------------------------------------------------------
-elif [ "api" == "$ACTION" ]; then
+elif [ "api-check" == "$ACTION" ]; then
 
 
 # prereqs: enabled apigee.googleapis.com
 
 
-REQUIRED_APIS="logging.googleapis.com apigee.googleapis.com apigeeconnect.googleapis.com compute.googleapis.com cloudresourcemanager.googleapis.com"
 
 
 function check_api_enabled() {
@@ -157,7 +174,10 @@ if [ ! -z "$exit_flag" ]; then
     report_abend -e "\n\nABEND: Enable required APIs"
 fi
 
+#-----------------------------------------------------------------------
+elif [ "api-enable" == "$ACTION" ]; then
 
+    gcloud services enable $REQUIRED_APIS
 
 # ----------------------------------------------------------------------
 else
