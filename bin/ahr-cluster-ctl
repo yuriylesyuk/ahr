@@ -103,6 +103,14 @@ check_envvars "CLUSTER CLUSTER_ZONE"
    response=$(gcloud -q container clusters delete $CLUSTER --region $CLUSTER_ZONE)
 
 #-----------------------------------------------------------------------
+elif [ "asm-install" == "$ACTION" ]; then
+
+check_envvars "CLUSTER CLUSTER_ZONE PROJECT"
+
+# TODO: [ ] add some code.
+
+
+#-----------------------------------------------------------------------
 elif [ "enable" == "$ACTION" ]; then
 
 check_envvars "PROJECT"
