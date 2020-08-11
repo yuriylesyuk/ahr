@@ -4,8 +4,8 @@
     "masterAuth": {
       "clientCertificateConfig": {}
     },
-    "loggingService": "logging.googleapis.com",
-    "monitoringService": "monitoring.googleapis.com",
+    "loggingService": "logging.googleapis.com/kubernetes",
+    "monitoringService": "monitoring.googleapis.com/kubernetes",
     "network": "projects/$PROJECT/global/networks/$NETWORK",
     "addonsConfig": {
       "httpLoadBalancing": {},

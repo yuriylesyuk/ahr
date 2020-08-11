@@ -55,6 +55,8 @@ while true; do
 done
 
 
+set +e
+
 # get cluster context for kubectl
 gcloud container clusters get-credentials $CLUSTER --zone $CLUSTER_ZONE
 
@@ -101,6 +103,26 @@ check_envvars "CLUSTER CLUSTER_ZONE"
 
    echo -e "Deleting Cluster: $CLUSTER in Zone: $CLUSTER_ZONE."
    response=$(gcloud -q container clusters delete $CLUSTER --region $CLUSTER_ZONE)
+
+
+#-----------------------------------------------------------------------
+elif [ "asm-template" == "$ACTION" ]; then
+
+    TEMPLATE=$2
+    if [ "$TEMPLATE" = "" ]; then
+        echo "ERROR: Missing template file reference."
+        echo ""
+
+        show_help
+        exit 5
+    fi
+
+    TEMPLATE_VARS=$(envsubst --variables  "$(cat $TEMPLATE)"|sort -u)
+
+    check_envvars "$TEMPLATE_VARS"
+
+    envsubst < $TEMPLATE
+
 
 #-----------------------------------------------------------------------
 elif [ "asm-install" == "$ACTION" ]; then
