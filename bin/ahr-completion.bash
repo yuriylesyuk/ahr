@@ -8,7 +8,7 @@ _ahr() {
         ACTIONS=(get home template apigeectl delete setsync setproperty org-validate-name org-create org-config)
         ;;
     ahr-cluster-ctl)
-        ACTIONS=(create context template delete enable)
+        ACTIONS=(create context template delete enable asm-get asm-template)
         ;;
     ahr-sa-ctl)
         ACTIONS=(create config delete rebind)

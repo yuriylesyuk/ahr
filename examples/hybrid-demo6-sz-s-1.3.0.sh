@@ -8,6 +8,11 @@
 # usage:
 #    source <env-conf-file>
 
+
+export ASM_TARBALL=istio-1.5.8-asm.7-linux.tar.gz
+export ASM_TEMPLATE=$AHR_HOME/templates/asm-overrides.yaml
+export ASM_CONFIG=$HYBRID_HOME/asm.yaml
+
 #
 # Hybrid release configuration
 #

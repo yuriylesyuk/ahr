@@ -8,10 +8,11 @@ BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function show_help(){
 
-    echo " Supported Action:"
-    echo "    create context template delete enable"
+    echo " Supported Actions:"
+    echo "    create context template delete enable asm-get"
     echo ""
-    echo " ahr-cluster-ctl template <templatefile>"
+    echo " examples: "
+    echo "    ahr-cluster-ctl template <template-file> > <config-file>"
     echo ""
 }
 
@@ -105,32 +106,33 @@ check_envvars "CLUSTER CLUSTER_ZONE"
    response=$(gcloud -q container clusters delete $CLUSTER --region $CLUSTER_ZONE)
 
 
-#-----------------------------------------------------------------------
-elif [ "asm-template" == "$ACTION" ]; then
-
-    TEMPLATE=$2
-    if [ "$TEMPLATE" = "" ]; then
-        echo "ERROR: Missing template file reference."
-        echo ""
-
-        show_help
-        exit 5
-    fi
-
-    TEMPLATE_VARS=$(envsubst --variables  "$(cat $TEMPLATE)"|sort -u)
-
-    check_envvars "$TEMPLATE_VARS"
-
-    envsubst < $TEMPLATE
-
 
 #-----------------------------------------------------------------------
-elif [ "asm-install" == "$ACTION" ]; then
+elif [ "asm-get" == "$ACTION" ]; then
 
-check_envvars "CLUSTER CLUSTER_ZONE PROJECT"
+check_envvars "HYBRID_HOME ASM_TARBALL RUNTIME_CONFIG"
 
-# TODO: [ ] add some code.
 
+mkdir -p $HYBRID_HOME
+cd $HYBRID_HOME
+
+
+curl -LO https://storage.googleapis.com/apigee-public/apigee-hybrid-setup/$HYBRID_VERSION/$HYBRID_TARBALL
+curl -LO https://storage.googleapis.com/gke-release/asm/$ASM_TARBALL
+
+tar xvzf $ASM_TARBALL
+
+# define ASM_HOME
+export ASM_HOME=$HYBRID_HOME/$(tar tf $HYBRID_HOME/$ASM_TARBALL | grep LICENSE | cut -d "/" -f 1)
+
+export PATH=$ASM_HOME:$PATH
+
+echo "# To define ASM_HOME in your shell, execute:"
+echo "export ASM_HOME=$ASM_HOME"
+echo "export PATH=\$ASM_HOME/bin:\$PATH"
+echo ""
+echo "# or TODO: [ ]"
+echo "source <(ahr-runtime-ctl home)"
 
 #-----------------------------------------------------------------------
 elif [ "enable" == "$ACTION" ]; then
