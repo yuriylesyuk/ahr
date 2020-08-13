@@ -117,7 +117,7 @@ mkdir -p $HYBRID_HOME
 cd $HYBRID_HOME
 
 
-curl -LO https://storage.googleapis.com/apigee-public/apigee-hybrid-setup/$HYBRID_VERSION/$HYBRID_TARBALL
+
 curl -LO https://storage.googleapis.com/gke-release/asm/$ASM_TARBALL
 
 tar xvzf $ASM_TARBALL
