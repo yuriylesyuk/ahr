@@ -14,7 +14,7 @@ function show_help(){
 
     echo "Set of operations to control Hybrid runtime deployment."
     echo ""
-    echo " ahr-runtime-ctl get|home|template|apigeectl|delete|setsync|setproperty|org-validate-name|org-create|org-config"
+    echo " ahr-runtime-ctl get|home|template|apigeectl|delete|setsync|setproperty|org-validate-name|org-create|org-config|env-create|env-group-create|env-group-assign"
     echo ""
     echo "Examples:"
     echo "    ahr-runtime-ctl template \$AHR_HOME/templates/overrides-large-template.yaml"
@@ -32,6 +32,10 @@ function show_help(){
     echo "         ax-region: asia-east1 asia-northeast1 asia-southeast1"
     echo "                    australia-southeast1 europe-west1 europe-west2"
     echo "                    us-central1 us-east1 us-east4 us-west1"
+    echo ""
+    echo "    ahr-runtime-ctl env-create <env-name>"
+    echo "    ahr-runtime-ctl env-group-create <env-group-name> <runtime-host-alias>"
+    echo "    ahr-runtime-ctl env-group-assign <org-name> <env-group-name> <env-name>"
     echo ""
 }
 
@@ -254,7 +258,7 @@ elif [ "org-validate-name" == "$ACTION" ]; then
 #-----------------------------------------------------------------------
 elif [ "org-create" == "$ACTION" ]; then
     if [ "$#" -lt 2 ]; then
-        echo "ERROR: Missing synchronizer sa id (ie, email). Or \"\" to reset."
+        echo "ERROR: No org name is provided."
         echo ""
         show_help
         exit 5
@@ -277,8 +281,76 @@ curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json" htt
 }
 EOF
 
+# make it a synchronous call
+wait_for_ready "\"$ORG\"" 'curl --silent -H "Authorization: Bearer $(token)" -H "Content-Type: application/json"  https://apigee.googleapis.com/v1/organizations/$ORG | jq ".name"' "Organization $ORG is created." 
+
+#-----------------------------------------------------------------------
+elif [ "env-create" == "$ACTION" ]; then
+    if [ "$#" -lt 2 ]; then
+        echo "ERROR: No environment name is provided."
+        echo ""
+        show_help
+        exit 5
+    fi
+
+    ENV=$2
+
+check_envvars "PROJECT"
+curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json"  https://apigee.googleapis.com/v1/organizations/$PROJECT/environments --data-binary @- <<EOT
+{
+  "name": "$ENV",
+  "description": "$ENV environment",
+  "displayName": "$ENV"
+}
+EOT
+
+# make it a synchronous call
+wait_for_ready "\"$ENV\"" 'curl --silent -H "Authorization: Bearer $(token)" -H "Content-Type: application/json"  https://apigee.googleapis.com/v1/organizations/$ORG/environments/$ENV | jq ".name"' "Environment $ENV of Organization $ORG is created."
 
 
+#-----------------------------------------------------------------------
+elif [ "env-group-create" == "$ACTION" ]; then
+    if [ "$#" -lt 3 ]; then
+        echo "ERROR: No environment group name or DNS name is provided."
+        echo ""
+        echo "    ahr-runtime-ctl env-group-create <env-group-name> <runtime-host-alias>"
+        show_help
+        exit 5
+    fi
+    ENV_GROUP=$2
+    DNS_NAME=$3
+
+check_envvars "PROJECT"
+
+curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json" https://apigee.googleapis.com/v1/organizations/$ORG/envgroups --data-binary @- <<EOT
+{
+  "name": "$ENV_GROUP",
+  "hostnames": [ "$DNS_NAME" ]
+}
+EOT
+
+#-----------------------------------------------------------------------
+elif [ "env-group-assign" == "$ACTION" ]; then
+    if [ "$#" -lt 4 ]; then
+        echo "ERROR: No organization name or environment group name or environment name is provided."
+        echo ""
+        echo "    ahr-runtime-ctl env-group-assign <org-name> <env-group-name> <env-name>"
+        show_help
+        exit 5
+    fi
+    ORG=$2
+    ENV_GROUP=$3
+    ENV=$4
+
+check_envvars "PROJECT"
+
+curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json" https://apigee.googleapis.com/v1/organizations/$ORG/envgroups/$ENV_GROUP/attachments --data-binary @- <<EOT
+{
+  "environment": "$ENV"
+}
+EOT
+
+#-----------------------------------------------------------------------
 else
     echo "Action unknown: $ACTION"
     echo ""

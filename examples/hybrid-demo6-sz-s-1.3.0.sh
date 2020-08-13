@@ -66,7 +66,7 @@ export RUNTIME_CONFIG=$HYBRID_HOME/runtime-sz.yaml
 
 export ORG=$PROJECT
 export ENV=test
-
+export ENV_GROUP=test-group
 
 export ENC_KEY_KMS=$(LC_ALL=C tr -dc "[:print:]" < /dev/urandom | head -c 32 | openssl base64)
 export ENC_KEY_KVM=$ENC_KEY_KMS

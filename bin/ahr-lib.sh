@@ -39,3 +39,19 @@ function get_password(){
     echo -n "$password"
 }
 
+# example: wait_for_ready "ready" 'cat ready.txt' "File is ready."
+function wait_for_ready(){
+    local status=$1
+    local action=$2
+    local message=$3
+
+    while true; do
+        local signal=$(eval "$action")
+        if [ $(echo $status) = "$signal" ]; then
+            echo -e "\n$message"
+            break
+        fi
+        echo -n "."
+        sleep 5
+    done
+}

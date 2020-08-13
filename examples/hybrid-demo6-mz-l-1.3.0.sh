@@ -61,6 +61,7 @@ export RUNTIME_CONFIG=$HYBRID_HOME/runtime-mz.yaml
 
 export ORG=$PROJECT
 export ENV=test
+export ENV_GROUP=test-group
 
 export CASSANDRA_STORAGE_CAPACITY=20Gi
 
