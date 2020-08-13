@@ -7,10 +7,11 @@ function show_help(){
 
     echo "Set of operations to control Hybrid install and runtime configuration."
     echo ""
-    echo " ahr-verify-ctl  cert host-ip sa-key api-check api-enable  all"
+    echo " ahr-verify-ctl  cert-create-ssc cert-is-valid host-ip sa-key api-check api-enable  all"
     echo ""
     echo "Examples:"
-    echo "    ahr-verify-ctl cert <cert-pem-file>"
+        echo "    ahr-verify-ctl cert-create-ssc <cert-file-pem> <key-file-pem> <host-name>"
+    echo "    ahr-verify-ctl cert-is-valid <cert-pem-file>"
     echo ""
 }
 
@@ -62,13 +63,35 @@ function report_abend(){
     fi
 }
 
+#-----------------------------------------------------------------------
+if [ "cert-create-ssc" == "$ACTION" ]; then
+    if [ "$#" -lt 4 ]; then
+        echo "ERROR: No Certificate destination file or Certificate key destination file or Host Name is provided."
+        echo ""
+        echo "    ahr-verify-ctl cert-create-ssc <cert-file-pem> <key-file-pem> <host-name>"
+        echo ""
+        show_help
+        exit 5
+    fi
+    SSL_CERT=$2
+    SSL_KEY=$3
+    HOST_NAME=$4
+
+echo "Saving certificate: $SSL_CERT"
+echo "           and key: $SSL_KEY"
+echo "          for FQDN: $HOST_NAME"
+echo ""
+openssl req -x509 -out $SSL_CERT -keyout $SSL_KEY -newkey rsa:2048 -nodes -sha256 -subj '/CN=api.exco.com' -extensions EXT -config <( printf "[dn]\nCN=$HOST_NAME\n[req]\ndistinguished_name=dn\n[EXT]\nbasicConstraints=critical,CA:TRUE,pathlen:1\nsubjectAltName=DNS:$HOST_NAME\nkeyUsage=digitalSignature,keyCertSign\nextendedKeyUsage=serverAuth")
+
 
 #-----------------------------------------------------------------------
-if [ "cert" == "$ACTION" ] || [ "all" == "$ACTION" ]; then
+elif [ "cert-is-valid" == "$ACTION" ] || [ "all" == "$ACTION" ]; then
 
     CERT_CHAIN=$2
     if [ "$CERT_CHAIN" = "" ]; then
-       echo "Missing Certificate Chain file: "
+       echo "Missing Certificate Chain file argument "
+       echo ""
+       echo "    ahr-verify-ctl cert-is-valid <cert-pem-file>"
        echo ""
        show_help
        exit 1

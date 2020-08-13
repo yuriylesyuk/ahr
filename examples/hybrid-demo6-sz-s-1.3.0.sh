@@ -68,13 +68,10 @@ export ORG=$PROJECT
 export ENV=test
 export ENV_GROUP=test-group
 
-export ENC_KEY_KMS=$(LC_ALL=C tr -dc "[:print:]" < /dev/urandom | head -c 32 | openssl base64)
-export ENC_KEY_KVM=$ENC_KEY_KMS
-export ENC_KEY_CACHE=$ENC_KEY_KMS
+#export ENC_KEY_KMS=$(LC_ALL=C tr -dc "[:print:]" < /dev/urandom | head -c 32 | openssl base64)
+#export ENC_KEY_KVM=$ENC_KEY_KMS
+#export ENC_KEY_CACHE=$ENC_KEY_KMS
 
-
-export APIGEE_NET_CHAIN=/home/yuriyl/apigee-hybrid/certificates/hybrid-net-cert-20200531.pem
-export APIGEE_NET_KEY=/home/yuriyl/apigee-hybrid/certificates/hybrid-net-key-20200531.pem
 
 export SA_DIR=$HYBRID_HOME/service-accounts
 
@@ -91,8 +88,8 @@ export MART_SA_ID=$MART_ID@$PROJECT.iam.gserviceaccount.com
 export SYNCHRONIZER_SA_ID=$SYNCHRONIZER_ID@$PROJECT.iam.gserviceaccount.com
 
 export RUNTIME_HOST_ALIAS=$ORG-$ENV.hybrid-apigee.net
-export RUNTIME_SSL_CERT=$APIGEE_NET_CHAIN
-export RUNTIME_SSL_KEY=$APIGEE_NET_KEY
+export RUNTIME_SSL_CERT=$HYBRID_HOME/hybrid-cert.pem
+export RUNTIME_SSL_KEY=$HYBRID_HOME/hybrid-key.pem
 export RUNTIME_IP=$(gcloud compute addresses describe runtime-ip --region $REGION --format='value(address)')
 
 #------------------------------------------------------------

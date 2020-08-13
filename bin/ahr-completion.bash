@@ -5,7 +5,7 @@ _ahr() {
     local command=$1
     case $command in
     ahr-runtime-ctl)
-        ACTIONS=(get home template apigeectl delete setsync setproperty org-validate-name org-create org-config)
+        ACTIONS=(get home template apigeectl delete setsync setproperty org-validate-name org-create org-config env-create env-group-create env-group-assign)
         ;;
     ahr-cluster-ctl)
         ACTIONS=(create context template delete enable asm-get asm-template)
@@ -17,7 +17,7 @@ _ahr() {
         ACTIONS=(keyspaces-list keyspaces-expand nodetool)
         ;;
     ahr-verify-ctl)
-        ACTIONS=(cert host-ip sa-key api-check api-enable all)
+        ACTIONS=(cert-create-ssc cert-is-valid host-ip sa-key api-check api-enable all)
         ;;
     esac
 
