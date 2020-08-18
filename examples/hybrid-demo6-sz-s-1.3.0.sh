@@ -83,6 +83,7 @@ export SYNCHRONIZER_SA=$SA_DIR/$PROJECT-$SYNCHRONIZER_ID.json
 export UDCA_SA=$SA_DIR/$PROJECT-apigee-udca.json
 export MART_SA=$SA_DIR/$PROJECT-apigee-mart.json
 export METRICS_SA=$SA_DIR/$PROJECT-apigee-metrics.json
+export WATCHER_SA=$SA_DIR/$PROJECT-apigee-watcher.json
 
 export MART_SA_ID=$MART_ID@$PROJECT.iam.gserviceaccount.com
 export SYNCHRONIZER_SA_ID=$SYNCHRONIZER_ID@$PROJECT.iam.gserviceaccount.com

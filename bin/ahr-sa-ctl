@@ -40,7 +40,7 @@ eval set -- "$pps"
 #
 # https://cloud.google.com/iam/docs/understanding-roles#apigee-roles
 
-APIGEE_COMP_ALL="synchronizer,mart,udca,logger,metrics,cassandra"
+APIGEE_COMP_ALL="synchronizer,mart,udca,logger,metrics,watcher,cassandra"
 APIGEE_CONFIG_COMP_ALL="synchronizer,mart,udca"
 
 APIGEE_ASM_ROLES='roles/gkehub.connect'
@@ -67,10 +67,13 @@ APIGEE_METRICS_ROLES='roles/monitoring.metricWriter'
 APIGEE_METRICS_PERMS='"monitoring.metricDescriptors.create","monitoring.metricDescriptors.get","monitoring.metricDescriptors.list","monitoring.monitoredResourceDescriptors.get","monitoring.monitoredResourceDescriptors.list","monitoring.timeSeries.create"'
 APIGEE_METRICS_NAME='Metrics Writer Service Account'
 
+APIGEE_WATCHER_ROLES='roles/apigee.runtimeAgent'
+APIGEE_WATCHER_PERMS='"apigee.canaryevaluations.create","apigee.canaryevaluations.get","apigee.ingressconfigs.get","apigee.instances.reportStatus","apigee.operations.get","apigee.operations.list"'
+APIGEE_WATCHER_NAME='Apigee Runtime Agent Service Account'
+
 APIGEE_CASSANDRA_ROLES='roles/storage.objectAdmin'
 APIGEE_CASSANDRA_PERMS='"resourcemanager.projects.get","resourcemanager.projects.list","storage.objects.*"'
 APIGEE_CASSANDRA_NAME='Cassandra Backups Service Account'
-
 
 function show_help(){
 
