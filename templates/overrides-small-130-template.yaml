@@ -3,23 +3,22 @@
 # As much as possible, the overrides uses default settings and values. All the minimum replicas are set 1
 #
 
-# GCP project name where the org is provisioned.
 gcp:
   projectID: $PROJECT
-  region: "$REGION"
-# Apigee org name.
+  region: "$AX_REGION"
+
 org: $PROJECT
-# Kubernetes cluster name details
+
 k8sCluster:
   name: $CLUSTER
-  region: "$REGION"
-
-virtualhosts:
-  - name: default
-    sslCertPath: $RUNTIME_SSL_CERT
-    sslKeyPath: $RUNTIME_SSL_KEY
+  region: "$AX_REGION"
 
 instanceID: "$CLUSTER-$REGION"
+
+virtualhosts:
+  - name: $ENV_GROUP
+    sslCertPath: $RUNTIME_SSL_CERT
+    sslKeyPath: $RUNTIME_SSL_KEY
 
 envs:
   - name: $ENV

@@ -15,22 +15,49 @@ function show_help(){
     echo ""
 }
 
+# APIs should be processed in max 20 batches
 
-REQUIRED_APIS=" \
-        logging.googleapis.com \
-        apigee.googleapis.com \
-        apigeeconnect.googleapis.com \
-        compute.googleapis.com \
-        cloudresourcemanager.googleapis.com \
-        \
-        meshca.googleapis.com \
-        meshtelemetry.googleapis.com \
-        meshconfig.googleapis.com
-        \
-        anthos.googleapis.com \
-        gkeconnect.googleapis.com \
-        gkehub.googleapis.com \
+REQUIRED_APIS1=" \
+    apigee.googleapis.com \
+    apigeeconnect.googleapis.com \
+    bigquery.googleapis.com \
+    bigquery.googleapis.com \
+    bigquerystorage.googleapis.com \
+    cloudapis.googleapis.com \
+    clouddebugger.googleapis.com \
+    cloudresourcemanager.googleapis.com \
+    cloudtrace.googleapis.com \
+    compute.googleapis.com \
+    computescanning.googleapis.com \
+    container.googleapis.com \
+    containeranalysis.googleapis.com \
+    containerregistry.googleapis.com \
+    datastore.googleapis.com \
+    dns.googleapis.com
 "
+REQUIRED_APIS2=" \
+    iam.googleapis.com \
+    iamcredentials.googleapis.com \
+    logging.googleapis.com \
+    monitoring.googleapis.com \
+    oslogin.googleapis.com \
+    pubsub.googleapis.com \
+    servicemanagement.googleapis.com \
+    serviceusage.googleapis.com \
+    sql-component.googleapis.com \
+    storage-api.googleapis.com \
+    storage-component.googleapis.com \
+"
+
+
+#        meshca.googleapis.com \
+#        meshtelemetry.googleapis.com \
+#        meshconfig.googleapis.com
+        \
+#        anthos.googleapis.com \
+#        gkeconnect.googleapis.com \
+#        gkehub.googleapis.com \
+
 
 
 
@@ -182,7 +209,7 @@ function check_api_enabled() {
 }
 
 exit_flag=
-for api in $REQUIRED_APIS; do
+for api in $REQUIRED_APIS1 $REQUIRED_APIS2; do
     echo -n "CHECK: $api API is enabled: "
 
     if [ "$(check_api_enabled $api)" -eq 1 ]; then
@@ -200,7 +227,8 @@ fi
 #-----------------------------------------------------------------------
 elif [ "api-enable" == "$ACTION" ]; then
 
-    gcloud services enable $REQUIRED_APIS
+    gcloud services enable $REQUIRED_APIS1
+    gcloud services enable $REQUIRED_APIS2
 
 # ----------------------------------------------------------------------
 else
