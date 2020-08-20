@@ -2,7 +2,7 @@
 # collection of variables to define apigee hybrid topology and configuration
 #
 #  cloud: GCP
-#  cluster: two node-pools, multi-zonal
+#  cluster: small, single-zone
 #  
 #
 # usage:
@@ -14,10 +14,8 @@ export ASM_TARBALL=istio-1.5.8-asm.7-linux.tar.gz
 export ASM_TEMPLATE=$AHR_HOME/templates/asm-overrides.yaml
 export ASM_CONFIG=$HYBRID_HOME/asm.yaml
 
-export ASM_ID=asm-sa
-export ASM_SA=$SA_DIR/$PROJECT-asm-sa.json
-export ASM_SA_ID=$ASM_ID@$PROJECT.iam.gserviceaccount.com 
-
+export PROJECT_NUMBER=$(gcloud projects describe ${PROJECT} --format="value(projectNumber)")
+export MESH_ID="proj-${PROJECT_NUMBER}"
 
 #
 # Hybrid release configuration
@@ -35,8 +33,9 @@ export HYBRID_TARBALL=apigeectl_linux_64.tar.gz
 export NETWORK=default
 export SUBNETWORK=default
 
-export REGION=europe-west1
-export AX_REGION=$REGION
+export REGION=${REGION:-europe-west1}
+export ZONE=${ZONE:-europe-west1-b}
+export AX_REGION=${AX_REGION:-europe-west1}
 #
 
 #
@@ -45,14 +44,14 @@ export AX_REGION=$REGION
 export CLUSTER_TEMPLATE=$AHR_HOME/templates/cluster-single-zone-one-nodepool-template.json
 export CLUSTER_CONFIG=$HYBRID_HOME/cluster-sz.json
 
-export MACHINE_TYPE_DATA=n1-standard-8
-export MACHINE_TYPE_RUNTIME=n1-standard-4
+export MACHINE_TYPE_DATA=${MACHINE_TYPE_DATA:-e2-standard-8}
+export MACHINE_TYPE_RUNTIME=${MACHINE_TYPE_RUNTIME:-e2-standard-4}
 
 export CLUSTER_VERSION=1.16
 
 export CLUSTER=hybrid-cluster
-export CLUSTER_ZONE=europe-west1-b
-export CLUSTER_LOCATIONS='"europe-west1-b"'
+export CLUSTER_ZONE=${ZONE}
+export CLUSTER_LOCATIONS='"'${ZONE:-europe-west1-b}'"'
 export CONTEXT=$CLUSTER
 
 

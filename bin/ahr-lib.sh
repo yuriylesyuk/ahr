@@ -55,3 +55,14 @@ function wait_for_ready(){
         sleep 5
     done
 }
+
+
+function get_account_as_member() {
+  ACCOUNT=$(gcloud config list --format='value(core.account)')
+  gcloud iam service-accounts describe $ACCOUNT &> /dev/null
+  if [ $? -eq 0 ] ; then
+    echo "serviceAccount:$ACCOUNT"
+    return
+  fi
+  echo "user:$ACCOUNT"
+}

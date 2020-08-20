@@ -14,9 +14,8 @@ export ASM_TARBALL=istio-1.5.8-asm.7-linux.tar.gz
 export ASM_TEMPLATE=$AHR_HOME/templates/asm-overrides.yaml
 export ASM_CONFIG=$HYBRID_HOME/asm.yaml
 
-export ASM_ID=asm-sa
-export ASM_SA=$SA_DIR/$PROJECT-asm-sa.json
-export ASM_SA_ID=$ASM_ID@$PROJECT.iam.gserviceaccount.com 
+export PROJECT_NUMBER=$(gcloud projects describe ${PROJECT} --format="value(projectNumber)")
+export MESH_ID="proj-${PROJECT_NUMBER}"
 
 #
 # Hybrid release configuration
