@@ -380,7 +380,7 @@ elif [ "install-profile" == "$ACTION" ]; then
 # profile: small
 # 
 
-
+export PROJECT
 
 ## Hybrid Install Environment
 
