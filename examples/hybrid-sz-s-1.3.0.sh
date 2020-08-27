@@ -8,9 +8,11 @@
 # usage:
 #    source <env-conf-file>
 
+export PLATFORM=${PLATFORM:-linux}  # linux | osx | win
+
 export CERT_MANAGER_MANIFEST=https://github.com/jetstack/cert-manager/releases/download/v0.14.2/cert-manager.yaml
 
-export ASM_TARBALL=istio-1.5.8-asm.7-linux.tar.gz
+export ASM_VERSION=1.5.9-asm.0
 export ASM_TEMPLATE=$AHR_HOME/templates/asm-overrides.yaml
 export ASM_CONFIG=$HYBRID_HOME/asm.yaml
 

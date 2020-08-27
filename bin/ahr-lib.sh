@@ -66,3 +66,33 @@ function get_account_as_member() {
   fi
   echo "user:$ACCOUNT"
 }
+
+
+function get_platform_suffix() {
+  local COMP=$1
+  local PLATFORM=$2
+  local SUFFIX
+
+  case $COMP in
+  asm)
+    case $PLATFORM in
+    linux)
+      SUFFIX=linux.tar.gz ;;
+    mac)
+      SUFFIX=osx.tar.gz ;;
+    win)
+      SUFFIX=win.zip ;;
+    esac ;;
+
+  apigeectl)
+    case $PLATFORM in
+    linux)
+      SUFFIX=linux_64.tar.gz ;;
+    mac)
+      SUFFIX=mac_64.tar.gz ;;
+    esac ;;
+  esac
+
+  echo -n "$SUFFIX"
+}
+

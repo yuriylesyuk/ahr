@@ -20,7 +20,7 @@ function show_help(){
 
 ACTION="$1"
 
-#-----------------------------------------------------------------------
+#'-----------------------------------------------------------------------
 if [ "create" == "$ACTION" ]; then
 
 
@@ -30,6 +30,7 @@ if [ ! -f "$CLUSTER_CONFIG" ]; then
     echo "Cluster file doesn't exist: $CLUSTER_CONFIG"
     exit 1
 fi
+
 
 echo "Cluster definition: $CLUSTER_CONFIG"
 
@@ -70,7 +71,7 @@ kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-ad
 
 
 
-#-----------------------------------------------------------------------
+#'-----------------------------------------------------------------------
 elif [ "template" == "$ACTION" ]; then
 
     TEMPLATE=$2
@@ -110,17 +111,28 @@ check_envvars "CLUSTER CLUSTER_ZONE"
 #-----------------------------------------------------------------------
 elif [ "asm-get" == "$ACTION" ]; then
 
-check_envvars "HYBRID_HOME ASM_TARBALL RUNTIME_CONFIG"
-
+check_envvars "HYBRID_HOME ASM_VERSION PLATFORM RUNTIME_CONFIG"
 
 mkdir -p $HYBRID_HOME
 cd $HYBRID_HOME
 
+# get asm code
+ASM_TARBALL="istio-$ASM_VERSION-$(get_platform_suffix asm $PLATFORM)"
+ASM_TARBALL_URL="https://storage.googleapis.com/gke-release/asm/$ASM_TARBALL"
 
-
-curl -LO https://storage.googleapis.com/gke-release/asm/$ASM_TARBALL
+echo "Getting asm tarball, version: $ASM_VERSION; url: $ASM_TARBALL_URL..."
+curl -LO $ASM_TARBALL_URL
 
 tar xvzf $ASM_TARBALL
+
+# get asm resource config repo
+ASM_PACKAGE=anthos-service-mesh-packages
+ASM_PACKAGE_RELEASE=release-${ASM_VERSION/.[[:digit:]]-asm.*/}-asm
+ASM_PACKAGE_URL=https://github.com/GoogleCloudPlatform/anthos-service-mesh-packages.git
+
+echo "Getting resource configuration repo for $ASM_VERSION; release: $ASM_PACKAGE_RELEASE..."
+rm -rf  $HYBRID_HOME/$ASM_PACKAGE
+git clone --single-branch --branch $ASM_PACKAGE_RELEASE https://github.com/GoogleCloudPlatform/$ASM_PACKAGE.git $HYBRID_HOME/$ASM_PACKAGE
 
 # define ASM_HOME
 export ASM_HOME=$HYBRID_HOME/$(tar tf $HYBRID_HOME/$ASM_TARBALL | grep LICENSE | cut -d "/" -f 1)
