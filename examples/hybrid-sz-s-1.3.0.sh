@@ -13,11 +13,8 @@ export PLATFORM=${PLATFORM:-linux}  # linux | osx | win
 export CERT_MANAGER_MANIFEST=https://github.com/jetstack/cert-manager/releases/download/v0.14.2/cert-manager.yaml
 
 export ASM_VERSION=1.5.9-asm.0
-export ASM_TEMPLATE=$AHR_HOME/templates/asm-overrides.yaml
-export ASM_CONFIG=$HYBRID_HOME/asm.yaml
-
-export PROJECT_NUMBER=$(gcloud projects describe ${PROJECT} --format="value(projectNumber)")
-export MESH_ID="proj-${PROJECT_NUMBER}"
+export ASM_TEMPLATE=$HYBRID_HOME/anthos-service-mesh-packages/asm/cluster/istio-operator.yaml
+export ASM_CONFIG=$HYBRID_HOME/istio-operator.yaml
 
 #
 # Hybrid release configuration

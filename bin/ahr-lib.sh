@@ -22,6 +22,27 @@ function check_envvars() {
     fi
 }
 
+
+function check_commands() {
+    local comlist=$1
+
+    local comsnotset="F"
+
+    for c in $comlist; do
+        if ! [ -x "$(command -v $c)" ]; then
+            echo "Required command is not on your PATH: $c."
+            comsnotset="T"
+        fi
+    done
+
+    if [ "$comsnotset" = "T" ]; then
+        echo ""
+        echo "ABEND. Please make sure required commands are set and accesible via PATH."
+        return 1
+    fi
+}
+
+
 function get_password(){
     local password
     local passconfirm

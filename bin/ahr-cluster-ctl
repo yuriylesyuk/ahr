@@ -111,7 +111,17 @@ check_envvars "CLUSTER CLUSTER_ZONE"
 #-----------------------------------------------------------------------
 elif [ "asm-get" == "$ACTION" ]; then
 
-check_envvars "HYBRID_HOME ASM_VERSION PLATFORM RUNTIME_CONFIG"
+    ASM_VERSION=$2
+    if [ "$ASM_VERSION" = "" ]; then
+       echo "Missing ASM Version Parameter. Ie:"
+       echo "  ahr-cluster-ctl asm-get \$ASM_VERSION"
+       echo ""
+       show_help
+       exit 1
+    fi
+
+
+check_envvars "HYBRID_HOME PLATFORM RUNTIME_CONFIG"
 
 mkdir -p $HYBRID_HOME
 cd $HYBRID_HOME
@@ -145,6 +155,52 @@ echo "export PATH=\$ASM_HOME/bin:\$PATH"
 echo ""
 echo "# or TODO: [ ]"
 echo "source <(ahr-runtime-ctl home)"
+
+
+#'-----------------------------------------------------------------------
+elif [ "asm-template" == "$ACTION" ]; then
+
+    TEMPLATE=$2
+    if [ "$TEMPLATE" = "" ]; then
+       echo "Missing ASM Template file: "
+       echo ""
+       show_help
+       exit 1
+    fi
+
+
+    check_envvars "PROJECT AX_REGION "
+    check_commands "yq"
+    
+    CONFIG=$(cat $TEMPLATE)
+
+    export PROJECT_NUMBER=$(gcloud projects describe ${PROJECT} --format="value(projectNumber)")
+    export MESH_ID="proj-${PROJECT_NUMBER}"
+
+
+    echo -n "$CONFIG" | yq m - <<EOF
+spec:
+  meshConfig:
+    enableAutoMtls: false
+    accessLogFile: "/dev/stdout"
+
+
+
+    echo -n "$CONFIG"
+
+exit
+#----------------
+
+    CONFIG=yq m -i $ASM_CONFIG - <<EOF
+spec:
+  meshConfig:
+    enableAutoMtls: false
+    accessLogFile: "/dev/stdout"
+    accessLogEncoding: 1
+    accessLogFormat: '{"start_time":"%START_TIME%","remote_address":"%DOWNSTREAM_DIRECT_REMOTE_ADDRESS%","user_agent":"%REQ(USER-AGENT)%","host":"%REQ(:AUTHORITY)%","request":"%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%","request_time":"%DURATION%","status":"%RESPONSE_CODE%","status_details":"%RESPONSE_CODE_DETAILS%","bytes_received":"%BYTES_RECEIVED%","bytes_sent":"%BYTES_SENT%","upstream_address":"%UPSTREAM_HOST%","upstream_response_flags":"%RESPONSE_FLAGS%","upstream_response_time":"%RESPONSE_DURATION%","upstream_service_time":"%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%","upstream_cluster":"%UPSTREAM_CLUSTER%","x_forwarded_for":"%REQ(X-FORWARDED-FOR)%","request_method":"%REQ(:METHOD)%","request_path":"%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%","request_protocol":"%PROTOCOL%","tls_protocol":"%DOWNSTREAM_TLS_VERSION%","request_id":"%REQ(X-REQUEST-ID)%","sni_host":"%REQUESTED_SERVER_NAME%","apigee_dynamic_data":"%DYNAMIC_METADATA(envoy.lua)%"}'
+EOF
+
+
 
 #-----------------------------------------------------------------------
 elif [ "enable" == "$ACTION" ]; then
