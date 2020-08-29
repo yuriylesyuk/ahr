@@ -95,10 +95,15 @@ function get_platform_suffix() {
   local SUFFIX
 
   case $COMP in
-  asm)
+  *asm)
     case $PLATFORM in
     linux)
-      SUFFIX=linux.tar.gz ;;
+      case $COMP in
+      1.5*-asm)
+         SUFFIX=linux.tar.gz ;;
+      1.6*-asm)
+         SUFFIX=linux-amd64.tar.gz ;;
+      esac ;;
     mac)
       SUFFIX=osx.tar.gz ;;
     win)

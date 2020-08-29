@@ -127,7 +127,7 @@ mkdir -p $HYBRID_HOME
 cd $HYBRID_HOME
 
 # get asm code
-ASM_TARBALL="istio-$ASM_VERSION-$(get_platform_suffix asm $PLATFORM)"
+ASM_TARBALL="istio-$ASM_VERSION-$(get_platform_suffix $ASM_VERSION $PLATFORM)"
 ASM_TARBALL_URL="https://storage.googleapis.com/gke-release/asm/$ASM_TARBALL"
 
 echo "Getting asm tarball, version: $ASM_VERSION; url: $ASM_TARBALL_URL..."
@@ -162,44 +162,101 @@ elif [ "asm-template" == "$ACTION" ]; then
 
     TEMPLATE=$2
     if [ "$TEMPLATE" = "" ]; then
-       echo "Missing ASM Template file: "
+       echo "Missing ASM IstioOperator Template file: "
        echo ""
        show_help
        exit 1
     fi
 
 
-    check_envvars "PROJECT AX_REGION "
+    check_envvars "PROJECT AX_REGION CLUSTER"
     check_commands "yq"
-    
+
+
+function yq_update() {
+  local yq_yaml=$1
+  local yq_path=$2
+  local yq_value=$3
+
+  paths=$(yq r -pp <(echo -n "$yq_yaml") $yq_path)
+
+  for p in $paths; do
+
+    yq_yaml=$(yq w --style double <(echo -n "$yq_yaml") $p "$yq_value")
+  done
+
+
+ echo -n "$yq_yaml"
+}
+
     CONFIG=$(cat $TEMPLATE)
 
     export PROJECT_NUMBER=$(gcloud projects describe ${PROJECT} --format="value(projectNumber)")
     export MESH_ID="proj-${PROJECT_NUMBER}"
 
-
-    echo -n "$CONFIG" | yq m - <<EOF
-spec:
-  meshConfig:
-    enableAutoMtls: false
-    accessLogFile: "/dev/stdout"
+CONFIG=$(yq_update "$CONFIG" 'metadata.clusterName' "$PROJECT/$REGION/$CLUSTER")
 
 
+CONFIG=$(yq_update "$CONFIG" '**.GCP_METADATA' "$PROJECT|$PROJECT_NUMBER|$CLUSTER|$AX_REGION")
 
-    echo -n "$CONFIG"
+CONFIG=$(yq_update "$CONFIG" '**.TRUST_DOMAIN' "$PROJECT.svc.id.goog")
 
-exit
-#----------------
+CONFIG=$(yq_update "$CONFIG" '**.GKE_CLUSTER_URL' "https://container.googleapis.com/v1/projects/$PROJECT/locations/$REGION/clusters/$CLUSTER")
 
-    CONFIG=yq m -i $ASM_CONFIG - <<EOF
+
+CONFIG=$(yq_update "$CONFIG" 'spec.values.global.meshID' "$MESH_ID")
+CONFIG=$(yq_update "$CONFIG" 'spec.values.global.trustDomain' "$PROJECT.svc.id.goog")
+CONFIG=$(yq_update "$CONFIG" 'spec.values.global.sds.token.aud' "$PROJECT")
+
+
+
+CONFIG=`yq m <(echo -n "$CONFIG") - <<EOY
 spec:
   meshConfig:
     enableAutoMtls: false
     accessLogFile: "/dev/stdout"
     accessLogEncoding: 1
     accessLogFormat: '{"start_time":"%START_TIME%","remote_address":"%DOWNSTREAM_DIRECT_REMOTE_ADDRESS%","user_agent":"%REQ(USER-AGENT)%","host":"%REQ(:AUTHORITY)%","request":"%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%","request_time":"%DURATION%","status":"%RESPONSE_CODE%","status_details":"%RESPONSE_CODE_DETAILS%","bytes_received":"%BYTES_RECEIVED%","bytes_sent":"%BYTES_SENT%","upstream_address":"%UPSTREAM_HOST%","upstream_response_flags":"%RESPONSE_FLAGS%","upstream_response_time":"%RESPONSE_DURATION%","upstream_service_time":"%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%","upstream_cluster":"%UPSTREAM_CLUSTER%","x_forwarded_for":"%REQ(X-FORWARDED-FOR)%","request_method":"%REQ(:METHOD)%","request_path":"%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%","request_protocol":"%PROTOCOL%","tls_protocol":"%DOWNSTREAM_TLS_VERSION%","request_id":"%REQ(X-REQUEST-ID)%","sni_host":"%REQUESTED_SERVER_NAME%","apigee_dynamic_data":"%DYNAMIC_METADATA(envoy.lua)%"}'
-EOF
+EOY`
 
+
+CONFIG=`yq m <(echo -n "$CONFIG") - <<EOY
+spec:
+  components:
+    pilot:
+      k8s:
+        hpaSpec:
+          maxReplicas: 3
+    ingressGateways:
+      - name: istio-ingressgateway
+        enabled: true
+        k8s:
+          service:
+            type: LoadBalancer
+            loadBalancerIP: $RUNTIME_IP
+            ports:
+              - name: status-port
+                port: 15020
+                targetPort: 15020
+              - name: http2
+                port: 80
+                targetPort: 80
+              - name: https
+                port: 443
+              - name: prometheus
+                port: 15030
+                targetPort: 15030
+              - name: tcp
+                port: 31400
+                targetPort: 31400
+              - name: tls
+                port: 15443
+                targetPort: 15443
+          hpaSpec:
+            maxReplicas: 3
+EOY`
+
+echo "$CONFIG"
 
 
 #-----------------------------------------------------------------------
