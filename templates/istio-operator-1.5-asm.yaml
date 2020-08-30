@@ -72,7 +72,7 @@ spec:
         TRUST_DOMAIN: "$PROJECT"
         GKE_CLUSTER_URL: "https://container.googleapis.com/v1/projects/$PROJECT/locations/$AX_REGION/clusters/$CLUSTER"
     global:
-      meshID: $MESH_ID
+      meshID: "proj-$PROJECT_NUMBER"
       trustDomain: "$PROJECT"
       sds:
         token:

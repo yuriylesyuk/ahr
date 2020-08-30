@@ -192,7 +192,6 @@ function yq_update() {
     CONFIG=$(cat $TEMPLATE)
 
     export PROJECT_NUMBER=$(gcloud projects describe ${PROJECT} --format="value(projectNumber)")
-    export MESH_ID="proj-${PROJECT_NUMBER}"
 
 CONFIG=$(yq_update "$CONFIG" 'metadata.clusterName' "$PROJECT/$REGION/$CLUSTER")
 
