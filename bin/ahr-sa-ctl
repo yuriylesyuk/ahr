@@ -143,7 +143,7 @@ function create_sa() {
     gcloud iam service-accounts create ${SA_ID} --display-name "${SA_NAME}"
 
     if [ "$SA_ROLE" != "" ]; then
-        gcloud projects add-iam-policy-binding ${PROJECT} --member serviceAccount:$SA_EMAIL --role ${SA_ROLE}
+        gcloud projects add-iam-policy-binding ${PROJECT} --member serviceAccount:$SA_EMAIL --role ${SA_ROLE} > /dev/null
     fi
     
 

@@ -131,9 +131,9 @@ ASM_TARBALL="istio-$ASM_VERSION-$(get_platform_suffix $ASM_VERSION $PLATFORM)"
 ASM_TARBALL_URL="https://storage.googleapis.com/gke-release/asm/$ASM_TARBALL"
 
 echo "Getting asm tarball, version: $ASM_VERSION; url: $ASM_TARBALL_URL..."
-curl -LO $ASM_TARBALL_URL
+curl --silent -LO $ASM_TARBALL_URL
 
-tar xvzf $ASM_TARBALL
+tar xvzf $ASM_TARBALL > /dev/null
 
 # get asm resource config repo
 ASM_PACKAGE=anthos-service-mesh-packages
