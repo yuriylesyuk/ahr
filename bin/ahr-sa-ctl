@@ -84,13 +84,15 @@ function show_help(){
     echo " <comp> -- all or [comma-separated combination of] synchronizer,mart,udca,logger,metrics,cassandra"
     echo ""
     echo ""
-    echo " ahr-sa-ctl create all|<comp> [--force] [--force-key-file]"
+    echo " ahr-sa-ctl create-sa all|<comp> [--force]"
     
-#    echo " ahr-sa-ctl create <comp> <comp-id> [--force] [--force-key-file]"
+#    echo " ahr-sa-ctl create-sa <comp> <comp-id> [--force]"
+
+    echo " ahr-sa-ctl create-key all|<comp> [--force-key-file]"
 
     echo " ahr-sa-ctl config all|udca|synchronizer|mart <sa-id>"
     echo "    ahr-sa-ctl config udca apigee-udca1"
-    echo " ahr-sa-ctl key <comp> <key-json-file>"
+    echo " ahr-sa-ctl validate-key <comp> <key-json-file>"
     echo " ahr-sa-ctl delete all|synchronizer|udca|mart|logger|metrics|cassandra"
     echo ""
     echo "The key .json files will be generated in a current directory."
@@ -131,7 +133,6 @@ function create_sa() {
     local SA_ROLE=$(get $COMP "_ROLES")
 
     local SA_EMAIL=$(get_sa_email "${PROJECT}" "${SA_ID}")
-    local SA_KEY_JSON=${SA_DIR}/${PROJECT}-${SA_ID}.json
 
     if [ "$(gcloud iam service-accounts list --format="value(name)" --filter="name:$SA_EMAIL" | wc -l)" -eq 1 ]; then
 
@@ -140,12 +141,29 @@ function create_sa() {
             FORCE_KEY_FILE=Y
         fi
     fi
+set +e
     gcloud iam service-accounts create ${SA_ID} --display-name "${SA_NAME}"
 
     if [ "$SA_ROLE" != "" ]; then
         gcloud projects add-iam-policy-binding ${PROJECT} --member serviceAccount:$SA_EMAIL --role ${SA_ROLE} > /dev/null
     fi
-    
+set -e
+}
+
+function create_key() {
+
+    local PROJECT=$1
+    local COMP=$2
+
+    local SA_ID=$3
+    if [ "$SA_ID" = "" ]; then
+        SA_ID=apigee-$COMP
+    fi
+
+    local SA_EMAIL=$(get_sa_email "${PROJECT}" "${SA_ID}")
+
+
+    local SA_KEY_JSON=${SA_DIR}/${PROJECT}-${SA_ID}.json
 
     # generate key json; 
     # check if present; 
@@ -155,7 +173,6 @@ function create_sa() {
     else
         echo "JSON file exists: $SA_KEY_JSON. Skipping."
     fi
-set +x
 }
 
 
@@ -306,8 +323,8 @@ function delete_sa() {
 
 }
 
-#"
-if [ "$action" = "create" ]; then
+#'
+if [ "$action" = "create-sa" ]; then
     COMP=$2
     if [ "$COMP" = "" ]; then
        echo "Missing Component: "
@@ -336,6 +353,38 @@ if [ "$action" = "create" ]; then
         create_sa "${PROJECT}" "$c" "$SA_ID"
     done
 
+
+#---
+elif [ "$action" = "create-key" ]; then
+    COMP=$2
+    if [ "$COMP" = "" ]; then
+       echo "Missing Component: "
+       echo ""
+       show_help
+       exit 1
+    fi
+    COMP_ID=$3
+
+    if [ "$COMP" = "all" ]; then
+        COMP="$APIGEE_COMP_ALL"
+    fi
+
+    IFS=","
+    for c in $COMP; do
+        case "$COMP" in
+            *,*)
+                # treat comp id as suffix
+                SA_ID=apigee-${c}$COMP_ID
+                ;;
+            *)
+                # single component
+                SA_ID=$COMP_ID
+        esac
+
+        create_key "${PROJECT}" "$c" "$SA_ID"
+    done
+
+
 #'----
 elif [ "$action" = "config" ]; then
     COMP=$2
@@ -362,7 +411,7 @@ elif [ "$action" = "config" ]; then
 
 #---
 
-elif [ "$action" = "key" ]; then
+elif [ "$action" = "validate-key" ]; then
     COMP=$2
     if [ "$COMP" = "" ]; then
        echo "Missing Component: "

@@ -273,12 +273,14 @@ elif [ "org-create" == "$ACTION" ]; then
     AX_REGION=$4
 
 check_envvars "PROJECT"
+check_commands "jq"
 
 curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json" https://apigee.googleapis.com/v1/organizations?parent=projects/$PROJECT --data-binary @- <<EOF
 {
     "name":"$ORG",
     "displayName":"$ORG",
     "description":"organization_description",
+    "runtimeType":"HYBRID",
     "analyticsRegion":"$AX_REGION"
 }
 EOF
