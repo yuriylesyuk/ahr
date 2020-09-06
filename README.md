@@ -1,6 +1,6 @@
 ahr Apigee Hybrid Runtime utility
 
-Status: v0.4 alpha. Current theme: UX fine-tuning. Things are stabilizing but expect a few refectorings until beta.
+Status: v0.7 alpha. Current theme: UX fine-tuning. Things are stabilizing but expect a few refectorings until beta.
 
 # Things to look for if you're interested to contribute
 
