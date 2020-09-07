@@ -25,7 +25,7 @@ spec:
     defaultConfig:
       proxyMetadata:
         GCP_METADATA: "$PROJECT|$PROJECT_NUMBER|$CLUSTER|$AX_REGION"
-        TRUST_DOMAIN: "$PROJECT"
+        TRUST_DOMAIN: "$PROJECT.svc.id.goog"
         GKE_CLUSTER_URL: "https://container.googleapis.com/v1/projects/$PROJECT/locations/$CLUSTER_ZONE/clusters/$CLUSTER"
   components:
     pilot:
@@ -64,16 +64,16 @@ spec:
       istio-ingressgateway:
         env:
           GCP_METADATA: "$PROJECT|$PROJECT_NUMBER|$CLUSTER|$AX_REGION"
-          TRUST_DOMAIN: "$PROJECT"
+          TRUST_DOMAIN: "$PROJECT.svc.id.goog"
           GKE_CLUSTER_URL: "https://container.googleapis.com/v1/projects/$PROJECT/locations/$CLUSTER_ZONE/clusters/$CLUSTER"
     prometheus:
       sidecarEnv:
         GCP_METADATA: "$PROJECT|$PROJECT_NUMBER|$CLUSTER|$AX_REGION"
-        TRUST_DOMAIN: "$PROJECT"
+        TRUST_DOMAIN: "$PROJECT.svc.id.goog"
         GKE_CLUSTER_URL: "https://container.googleapis.com/v1/projects/$PROJECT/locations/$CLUSTER_ZONE/clusters/$CLUSTER"
     global:
       meshID: "proj-$PROJECT_NUMBER"
-      trustDomain: "$PROJECT"
+      trustDomain: "$PROJECT.svc.id.goog"
       sds:
         token:
           aud: "$PROJECT"
