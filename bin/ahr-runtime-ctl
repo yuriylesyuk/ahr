@@ -384,7 +384,7 @@ elif [ "install-profile" == "$ACTION" ]; then
 
 export PROJECT
 
-export ASM_VERSION=1.5.9-asm.0
+export ASM_VERSION=${ASM_VERSION:-1.5.9-asm.0}
 echo "ASM version: $ASM_VERSION"
 
 
