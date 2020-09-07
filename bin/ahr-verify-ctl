@@ -49,19 +49,14 @@ REQUIRED_APIS2=" \
     sql-component.googleapis.com \
     storage-api.googleapis.com \
     storage-component.googleapis.com \
+    \   
+    anthos.googleapis.com \
+    meshca.googleapis.com \
+    meshtelemetry.googleapis.com \
+    meshconfig.googleapis.com \
+    gkeconnect.googleapis.com \
+    gkehub.googleapis.com \    
 "
-
-
-#        meshca.googleapis.com \
-#        meshtelemetry.googleapis.com \
-#        meshconfig.googleapis.com
-        \
-#        anthos.googleapis.com \
-#        gkeconnect.googleapis.com \
-#        gkehub.googleapis.com \
-
-
-
 
 # options
 STOPONERROR=1
