@@ -443,11 +443,6 @@ if [ "$ASM_RELEASE" = "1.5-asm" ]; then
 
 else # 1.6-asm
 
-    gcloud services enable --project=${PROJECT} \
-        meshca.googleapis.com \
-        meshtelemetry.googleapis.com \
-        meshconfig.googleapis.com
-
     export WORKLOAD_POOL=${PROJECT}.svc.id.goog
 
     gcloud container clusters update ${CLUSTER} --project=${PROJECT} --zone=$CLUSTER_ZONE --workload-pool=${WORKLOAD_POOL}
