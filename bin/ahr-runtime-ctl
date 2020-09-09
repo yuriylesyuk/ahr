@@ -299,8 +299,8 @@ elif [ "env-create" == "$ACTION" ]; then
 
     ENV=$2
 
-check_envvars "PROJECT"
-curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json"  https://apigee.googleapis.com/v1/organizations/$PROJECT/environments --data-binary @- <<EOT
+check_envvars "ORG"
+curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json"  https://apigee.googleapis.com/v1/organizations/$ORG/environments --data-binary @- <<EOT
 {
   "name": "$ENV",
   "description": "$ENV environment",
@@ -324,7 +324,7 @@ elif [ "env-group-create" == "$ACTION" ]; then
     ENV_GROUP=$2
     DNS_NAME=$3
 
-check_envvars "PROJECT"
+check_envvars "ORG"
 
 curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json" https://apigee.googleapis.com/v1/organizations/$ORG/envgroups --data-binary @- <<EOT
 {
@@ -346,7 +346,7 @@ elif [ "env-group-assign" == "$ACTION" ]; then
     ENV_GROUP=$3
     ENV=$4
 
-check_envvars "PROJECT"
+check_envvars "ORG"
 
 curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json" https://apigee.googleapis.com/v1/organizations/$ORG/envgroups/$ENV_GROUP/attachments --data-binary @- <<EOT
 {
