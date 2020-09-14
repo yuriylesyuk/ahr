@@ -37,6 +37,7 @@ function show_help(){
     echo ""
     echo "    ahr-runtime-ctl env-create <env-name>"
     echo "    ahr-runtime-ctl env-group-create <env-group-name> <runtime-host-alias>"
+    echo "    ahr-runtime-ctl env-group-config <env-group-name>"
     echo "    ahr-runtime-ctl env-group-assign <org-name> <env-group-name> <env-name>"
     echo ""
 }
@@ -75,6 +76,11 @@ function validate_org_name(){
     fi
 }
 
+
+# put items of the comman separeted list into double quotes
+function quotes() {
+    echo "$1" | awk 'BEGIN{FS=",";OFS=","}{for(i=1;i<=NF;i++) $i="\""$i"\""; print}'
+}
 
 ACTION="$1"
 
@@ -322,14 +328,51 @@ elif [ "env-group-create" == "$ACTION" ]; then
         exit 5
     fi
     ENV_GROUP=$2
-    DNS_NAME=$3
+    HOSTNAMES=$(quotes "$3" )
 
 check_envvars "ORG"
 
 curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json" https://apigee.googleapis.com/v1/organizations/$ORG/envgroups --data-binary @- <<EOT
 {
   "name": "$ENV_GROUP",
-  "hostnames": [ "$DNS_NAME" ]
+  "hostnames": [ $HOSTNAMES ]
+}
+EOT
+
+#-----------------------------------------------------------------------
+elif [ "env-group-config" == "$ACTION" ]; then
+    if [ "$#" -lt 2 ]; then
+        echo "ERROR: No environment group name or DNS name is provided."
+        echo ""
+        echo "    ahr-runtime-ctl env-group-config <env-group-name> <runtime-host-alias>"
+        show_help
+        exit 5
+    fi
+    ENV_GROUP=$2
+
+check_envvars "ORG"
+
+curl -H "Authorization: Bearer $(token)" -H "Content-Type: application/json" https://apigee.googleapis.com/v1/organizations/$ORG/envgroups/$ENV_GROUP
+
+#-----------------------------------------------------------------------
+elif [ "env-group-set-hostnames" == "$ACTION" ]; then
+    if [ "$#" -lt 3 ]; then
+        echo "ERROR: No environment group name or hostname(s) is provided."
+        echo ""
+        echo "    ahr-runtime-ctl env-group-config <env-group-name> <runtime-host-alias(es)-comma-separated>"
+        show_help
+        exit 5
+    fi
+    ENV_GROUP=$2
+    HOSTNAMES=$(quotes "$3" )
+
+check_envvars "ORG"
+
+
+curl -X PATCH -H "Authorization: Bearer $(token)" -H "Content-Type: application/json" https://apigee.googleapis.com/v1/organizations/$ORG/envgroups/$ENV_GROUP --data-binary @- <<EOT
+{
+  "name": "$ENV_GROUP",
+  "hostnames": [ $HOSTNAMES ]
 }
 EOT
 
