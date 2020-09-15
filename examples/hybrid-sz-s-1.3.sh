@@ -20,7 +20,7 @@ export ASM_CONFIG=$HYBRID_HOME/istio-operator.yaml
 # Hybrid release configuration
 #
 export HYBRID_VERSION=1.3.2
-export HYBRID_TARBALL=apigeectl_linux_64.tar.gz
+export HYBRID_TARBALL=apigeectl_$(get_platform_suffix apigeectl $PLATFORM)"
 
 
 
