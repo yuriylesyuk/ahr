@@ -7,6 +7,7 @@
 #
 # usage:
 #    source <env-conf-file>
+source $AHR_HOME/bin/ahr-lib.sh     # for get_platform_suffix
 
 export PLATFORM=${PLATFORM:-linux}  # linux | osx | win
 
