@@ -492,15 +492,15 @@ export PATH=$ASM_HOME/bin:$PATH
 # Use supplied istio-operator.yaml 
 export PROJECT_NUMBER=$(gcloud projects describe ${PROJECT} --format="value(projectNumber)")
 export ref=\$ref
-export ASM_RELEASE=$(echo "$ASM_VERSION"|awk '{sub(/\.[0-9]+-asm\.[0-9]+/,"");print}')-$ASM_PROFILE
+export ASM_RELEASE=$(echo "$ASM_VERSION"|awk '{sub(/\.[0-9]+-asm\.[0-9]+/,"");print}')
 
-ahr-cluster-ctl template $AHR_HOME/templates/istio-operator-$ASM_RELEASE.yaml > $ASM_CONFIG
+ahr-cluster-ctl template $AHR_HOME/templates/istio-operator-$ASM_RELEASE-$ASM_PROFILE.yaml > $ASM_CONFIG
 
-if [ "$ASM_RELEASE" = "1.5-asm" ]; then
+if [ "$ASM_RELEASE" = "1.5" ]; then
 
     istioctl manifest apply -f $ASM_CONFIG
 
-else # 1.6-asm
+else # 1.6
 
     export WORKLOAD_POOL=${PROJECT}.svc.id.goog
 
