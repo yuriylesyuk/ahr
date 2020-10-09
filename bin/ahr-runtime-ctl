@@ -414,15 +414,16 @@ EOT
 
 #-----------------------------------------------------------------------
 elif [ "install-profile" == "$ACTION" ]; then
-    if [ "$#" -lt 3 ]; then
-        echo "ERROR: Either project or profile or both are not provided."
+    if [ "$#" -lt 4 ]; then
+        echo "ERROR: Either project or hybrid profile or asm profile are not provided."
         echo ""
-        echo "    ahr-runtime-ctl install-profile <project> <profile>"
+        echo "    ahr-runtime-ctl install-profile <project> <hybrid-profile> <asm-profile>"
         echo ""
         echo "Example:"
-        echo "    ahr-runtime-ctl install-profile \$GOOGLE_CLOUD_PROJECT small"
+        echo "    ahr-runtime-ctl install-profile \$GOOGLE_CLOUD_PROJECT small asm-gcp"
         echo ""
-        echo "Supported profiles: small"
+        echo "Supported hybrid profiles: small"
+        echo "Supported asm profiles: asm-gcp asm-multicloud"
         echo ""
         echo "Override if you wish (ie, set up before calling the operation):"
         echo "    HYBRID_HOME HYBRID_ENV"
@@ -431,9 +432,10 @@ elif [ "install-profile" == "$ACTION" ]; then
         exit 5
     fi
     PROJECT=$2
-    PROFILE=$3
+    HYBRID_PROFILE=$3
+    ASM_PROFILE=$4
 
-    check_envvars "AHR_HOME"
+    check_envvars "AHR_HOME HYBRID_PROFILE ASM_PROFILE"
 
 # 
 # profile: small
@@ -477,6 +479,7 @@ ahr-cluster-ctl create
 set -e
 
 # Install Certificate Manager
+echo "Cert Manager version: $CERT_MANAGER_MANIFEST"
 kubectl apply --validate=false -f $CERT_MANAGER_MANIFEST > /dev/null
 
 
@@ -489,7 +492,7 @@ export PATH=$ASM_HOME/bin:$PATH
 # Use supplied istio-operator.yaml 
 export PROJECT_NUMBER=$(gcloud projects describe ${PROJECT} --format="value(projectNumber)")
 export ref=\$ref
-export ASM_RELEASE=${ASM_VERSION/.[[:digit:]]-asm.*/}-asm
+export ASM_RELEASE=$(echo "$ASM_VERSION"|awk '{sub(/\.[0-9]+-asm\.[0-9]+/,"");print}')-$ASM_PROFILE
 
 ahr-cluster-ctl template $AHR_HOME/templates/istio-operator-$ASM_RELEASE.yaml > $ASM_CONFIG
 
