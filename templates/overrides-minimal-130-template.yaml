@@ -46,7 +46,7 @@ mart:
     requests:
       cpu: 250m
       memory: 256Mi
- serviceAccountPath: $MART_SA
+  serviceAccountPath: $MART_SA
  
 synchronizer:
   replicaCountMin: 1
