@@ -13,41 +13,84 @@
 # limitations under the License.
 
 #
-# This sample is ideal for a quick start. It uses the minimum recommended footprint to start apigee runtime components.
-# As much as possible, the overrides uses default settings and values. All the minimum replicas are set 1
+# apigee-minimal profile
 #
 
 gcp:
   projectID: $PROJECT
   region: "$AX_REGION"
 
-org: $ORG
+org: "$ORG"
 
 k8sCluster:
   name: $CLUSTER
   region: "$AX_REGION"
 
 instanceID: "$CLUSTER-$REGION"
-
+ 
 virtualhosts:
   - name: $ENV_GROUP
     sslCertPath: $RUNTIME_SSL_CERT
     sslKeyPath: $RUNTIME_SSL_KEY
-
+ 
 envs:
   - name: $ENV
     serviceAccountPaths:
       synchronizer: $SYNCHRONIZER_SA
       udca: $UDCA_SA
-
+ 
 mart:
-  serviceAccountPath: $MART_SA
+  replicaCountMin: 1
+  replicaCountMax: 1
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+ serviceAccountPath: $MART_SA
+ 
+synchronizer:
+  replicaCountMin: 1
+  replicaCountMax: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+ 
+runtime:
+ replicaCountMin: 1
+ replicaCountMax: 1
+ resources:
+   requests:
+     cpu: 250m
+     memory: 256Mi
+ 
+udca:
+ replicaCountMin: 1
+ replicaCountMax: 1
+ resources:
+   requests:
+     cpu: 100m
+     memory: 256Mi
+
+ fluentd:
+   resources:
+     limits:
+       memory: 128Mi
+     requests:
+       cpu: 100m
+       memory: 128Mi
 
 connectAgent:
   serviceAccountPath: $MART_SA
 
 metrics:
+  enabled: false
   serviceAccountPath: $METRICS_SA
 
 watcher:
   serviceAccountPath: $WATCHER_SA
+
+
+
+
+
