@@ -30,7 +30,19 @@ export API=ping
 export API_BUNDLE=$BASEDIR/ping_rev1_2020_05_27.zip
 
 # import
-export REV=$(curl -H "Authorization: Bearer $(token)" -F file=@$API_BUNDLE -X POST "https://apigee.googleapis.com/v1/organizations/$ORG/apis?action=import&name=$API" | jq -r '.revision')
+export REV=$(curl --silent -H "Authorization: Bearer $(token)" -F file=@$API_BUNDLE -X POST "https://apigee.googleapis.com/v1/organizations/$ORG/apis?action=import&name=$API" | jq -r '.revision')
 
 # deploy
+echo "Deploying  Proxy: $API Revision: $REV..."
 curl -H "Authorization: Bearer $(token)" -X POST "https://apigee.googleapis.com/v1/organizations/$ORG/environments/$ENV/apis/$API/revisions/$REV/deployments?override=true"
+
+
+# wait till ready
+echo -n "Checking Deployment Status"
+STATUS=""
+while [ "$STATE" != "READY" ]; do
+    STATE=$(curl --silent -H "Authorization: Bearer $(token)" "https://apigee.googleapis.com/v1/organizations/$ORG/environments/$ENV/apis/$API/revisions/$REV/deployments" | jq -r '.state')
+    echo -n "."
+    sleep 5
+done
+echo -e "\nProxy $API is deployed.\n"
