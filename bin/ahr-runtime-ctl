@@ -467,6 +467,10 @@ set +e
 gcloud compute addresses create runtime-ip --region $REGION
 set -e
 
+export RUNTIME_IP=$(az network public-ip show --resource-group $RESOURCE_GROUP --name $CLUSTER-public-ip --query ipAddress --output tsv)
+sed -i -E "s/^(export RUNTIME_IP=).*/\1$RUNTIME_IP/g" $HYBRID_ENV
+
+
 source $HYBRID_ENV
 
 echo "ASM version: $ASM_VERSION"
