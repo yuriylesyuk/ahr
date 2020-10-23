@@ -28,7 +28,9 @@ export PLATFORM=${PLATFORM:-linux}  # linux | osx | win
 
 export CERT_MANAGER_MANIFEST=https://github.com/jetstack/cert-manager/releases/download/v0.14.2/cert-manager.yaml
 
-export ASM_VERSION=${ASM_VERSION:-1.6.11-asm.1} 
+export ASM_PROFILE=${ASM_PROFILE:-asm-gcp}
+export ASM_VERSION=${ASM_VERSION:-1.6.11-asm.1}
+
 export ASM_TEMPLATE=$HYBRID_HOME/anthos-service-mesh-packages/asm/cluster/istio-operator.yaml
 export ASM_CONFIG=$HYBRID_HOME/istio-operator.yaml
 
