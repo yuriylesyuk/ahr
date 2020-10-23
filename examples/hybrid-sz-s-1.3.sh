@@ -105,6 +105,6 @@ export SYNCHRONIZER_SA_ID=$SYNCHRONIZER_ID@$PROJECT.iam.gserviceaccount.com
 export RUNTIME_HOST_ALIAS=$ORG-$ENV.hybrid-apigee.net
 export RUNTIME_SSL_CERT=$HYBRID_HOME/hybrid-cert.pem
 export RUNTIME_SSL_KEY=$HYBRID_HOME/hybrid-key.pem
-export RUNTIME_IP=$(gcloud compute addresses describe runtime-ip --region $REGION --format='value(address)')
+export RUNTIME_IP=203.0.113.10
 
 #------------------------------------------------------------
