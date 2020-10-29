@@ -28,23 +28,11 @@ spec:
             type: LoadBalancer
             loadBalancerIP: $RUNTIME_IP
             ports:
-              - name: status-port
-                port: 15020
-                targetPort: 15020
               - name: http2
                 port: 80
                 targetPort: 80
               - name: https
                 port: 443
-              - name: prometheus
-                port: 15030
-                targetPort: 15030
-              - name: tcp
-                port: 31400
-                targetPort: 31400
-              - name: tls
-                port: 15443
-                targetPort: 15443
           hpaSpec:
             maxReplicas: 3
   meshConfig:
