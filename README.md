@@ -8,7 +8,9 @@ Its goal is to facilitate knowledge transfer and best practices around installat
 The AHR utility complements officially provided apigeectl utility and encapsulates additional tasks that optimise operational experience.
 
 
-## Please, go to ahr wiki, https://github.com/yuriylesyuk/ahr/wiki, for how-to-start guide and the additional materials.
+> ### Please, go to ahr wiki
+> ### https://github.com/yuriylesyuk/ahr/wiki, 
+> ### for how-to-start guide and additional materials.
 
 
 <hr>
