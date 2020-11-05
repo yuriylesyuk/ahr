@@ -59,12 +59,18 @@ Apparently, yes.
 
 ## Disclaimer
 
-This example is not an official Google product, nor is it part of an official Google product.
+This repository and its contents are not an official Google product, nor are they part of an official Google product.
+
 
 ## License
 
 This material is copyright 2020, Google LLC.
 and is licensed under the Apache 2.0 license. See the [LICENSE](LICENSE) file.
+
+
+## Contributing
+
+See the [contributing instructions](/CONTRIBUTING.md) to get started.
 
 ## Status
 
