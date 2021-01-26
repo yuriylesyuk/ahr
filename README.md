@@ -2,7 +2,7 @@
 + WARNING: This project has graduated to https://github.com/apigee/ahr/wiki
 - NOTICE: This repository is not maintained anymore. Please go to our new location
 ```
-# [https://github.com/apigee/ahr/wiki]()
+# [https://github.com/apigee/ahr/wiki](https://github.com/apigee/ahr/wiki)
 
 
 ---
